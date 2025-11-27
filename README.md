@@ -222,33 +222,215 @@ blacknova/
 
 ### ✅ Completed Features
 
-- User registration and authentication
+#### Core Systems
+- User registration and authentication with bcrypt password hashing
 - Session management with CSRF protection
-- Ship/player management
-- Sector navigation
-- Port trading (buy/sell commodities)
-- Planet viewing
-- Ship status page
 - Secure database layer with prepared statements
-- Modern responsive UI
-- Score calculation
+- Modern responsive UI with template inheritance
+- Score calculation and player statistics
+
+#### Gameplay Features
+- **Ship/Player Management**: Full ship status, equipment tracking, and character management
+- **Sector Navigation**: Real-time movement through the universe with turn management
+- **Port Trading**: Buy/sell commodities (ore, organics, goods, energy) with dynamic pricing
+- **Planet System**:
+  - Planet viewing and scanning
+  - Planet colonization with colonist management
+  - Resource production (ore, organics, goods, energy, fighters, torpedoes)
+  - Planetary base construction and management
+  - Transfer and production allocation controls
+
+#### Combat & Defense
+- **Combat System**:
+  - Ship-to-ship combat with beam/torpedo attacks
+  - Planet attacks with base destruction and capture mechanics
+  - Defense deployment (mines and fighters)
+  - Defense vs defense combat in sectors
+  - Combat results with damage calculation
+- **Attack Logs**:
+  - Comprehensive combat history tracking
+  - View attacks made and received
+  - Combat statistics and filtering
+
+#### Social Features
+- **Teams/Alliances**:
+  - Team creation and management
+  - Invitation system with accept/decline
+  - Team messaging and communication
+  - Team rankings and statistics
+  - Member management (kick, leave)
+- **Player Messaging**:
+  - Send/receive private messages between players
+  - Inbox and sent message folders
+  - Message read/unread tracking
+  - Soft delete with trash functionality
+  - Mark all as read feature
+
+#### Economy & Progression
+- **Intergalactic Bank (IGB)**:
+  - Deposit and withdraw credits
+  - Secure fund transfers between players
+  - Loan system with configurable interest rates
+  - Loan repayment tracking
+  - Account balance management
+- **Ship Upgrades**:
+  - 10 upgradeable components (hull, engines, power, computer, sensors, beams, torpedo launchers, shields, armor, cloak)
+  - Exponential cost scaling for balance
+  - Upgrade and downgrade functionality
+  - Component level tracking
+
+#### Information & Rankings
+- **Rankings System**:
+  - Player rankings with 7 sort options (score, ships destroyed, planets, defenses, etc.)
+  - Team rankings with aggregate statistics
+  - Online/offline player detection
+  - Efficiency calculations
+  - Top 100 leaderboard with pagination
+- **Player Info & Search**:
+  - Comprehensive player profiles
+  - Player search functionality
+  - Team affiliation display
+  - Combat statistics and achievements
 
 ### 🚧 Features to Implement
 
-The original game had many features. Here are major ones not yet implemented:
+The original game had additional features that could be added:
 
-- Combat system
-- Planet colonization and management
-- Sector defenses (mines, fighters)
-- Teams/alliances
-- Intergalactic Bank (IGB)
-- Mail/messaging system
-- Trade routes
-- Genesis torpedoes and special devices
-- Admin panel
-- Rankings system
-- News system
-- Scheduler for automated tasks
+- Trade routes (automated trading)
+- Genesis torpedoes and terraforming
+- Special devices (beacons, warp editors, etc.)
+- News system (automated news generation)
+- Scheduler for automated tasks (turn generation, production, etc.)
+- Advanced admin panel features
+
+## Feature Guide
+
+### Getting Started
+
+After registering and logging in, you'll start with a basic ship and limited resources. Your goal is to build your empire through trading, combat, and strategic alliances.
+
+### Trading & Economy
+
+**Port Trading**: Visit ports to buy low and sell high. Each port specializes in different commodities:
+- Ore ports: Buy ore cheap, sell goods/energy
+- Organics ports: Buy organics cheap, sell ore/energy
+- Goods ports: Buy goods cheap, sell ore/organics
+- Energy ports: Buy energy cheap, sell other commodities
+
+**Intergalactic Bank (IGB)**: Access from the main menu
+- Deposit credits for safekeeping
+- Withdraw when needed
+- Transfer funds to other players (with configurable fee)
+- Take loans to finance expansion (with interest)
+- Repay loans to maintain good standing
+
+### Combat & Defense
+
+**Ship Combat**: Attack other ships in your sector
+- Requires beams and/or torpedoes
+- Success depends on ship upgrades and tactics
+- Destroy ships to earn bounties and salvage
+- View combat history in Attack Logs
+
+**Planet Attacks**: Assault planets to capture them
+- Attack planetary bases and defenses
+- Capture planets for resource production
+- Successful captures transfer ownership
+
+**Sector Defense**: Deploy mines and fighters
+- Place defensive units in sectors
+- Automatic defense vs defense combat
+- Retrieve defenses when needed
+- View deployed defenses across all sectors
+
+### Planets & Production
+
+**Colonization**: Land on unowned planets to colonize
+- Requires colonists from ports
+- Each planet can produce resources
+- Build bases for enhanced production
+
+**Production Management**:
+- Allocate colonists to different resources
+- Produce: ore, organics, goods, energy, fighters, torpedoes
+- Transfer resources to/from your ship
+- Balance production for optimal efficiency
+
+### Ship Upgrades
+
+Enhance your ship with 10 upgradeable components:
+- **Hull**: Increases ship armor and durability
+- **Engines**: Improves speed and turn efficiency
+- **Power**: Boosts overall ship performance
+- **Computer**: Enhances targeting and calculations
+- **Sensors**: Improves scanning and detection
+- **Beams**: Increases beam weapon damage
+- **Torpedo Launchers**: More torpedo capacity and damage
+- **Shields**: Better defensive shielding
+- **Armor**: Additional hull protection
+- **Cloak**: Stealth capabilities
+
+Costs increase exponentially with each level. You can also downgrade for partial refunds.
+
+### Social Features
+
+**Teams/Alliances**:
+- Create or join teams
+- Team messaging and coordination
+- Shared team statistics
+- Team rankings
+- Invite system with accept/decline
+- Team leadership and member management
+
+**Player Messaging**:
+- Send private messages to any player
+- Inbox for received messages
+- Sent folder to track outgoing messages
+- Mark messages as read/unread
+- Delete unwanted messages
+
+**Player Profiles**:
+- View detailed stats of any player
+- Search for players by name
+- See team affiliations
+- View combat achievements
+- Check online status
+
+### Rankings & Statistics
+
+**Player Rankings**: View top players sorted by:
+- Overall score
+- Ships destroyed
+- Planets owned
+- Deployed defenses
+- Cash on hand
+- Net worth
+- Efficiency rating
+
+**Team Rankings**: See top teams by:
+- Combined team score
+- Total team members
+- Team assets and achievements
+
+**Attack Logs**: Review your combat history
+- Attacks you've made
+- Attacks you've received
+- Damage statistics
+- Combat outcomes (success, failure, destroyed, escaped)
+- Sector locations and timestamps
+
+### Strategy Tips
+
+1. **Start Small**: Begin with port trading to build capital
+2. **Upgrade Wisely**: Focus on engines early for better movement
+3. **Defend Yourself**: Deploy defenses in key sectors
+4. **Join a Team**: Team play offers protection and coordination
+5. **Diversify**: Balance trading, planet production, and combat
+6. **Bank Your Credits**: Use IGB to protect wealth from attackers
+7. **Scout First**: Check sector information before engaging
+8. **Track Enemies**: Use attack logs to identify threats
+9. **Plan Production**: Allocate planet colonists efficiently
+10. **Stay Active**: Regular play helps you climb the rankings
 
 ## Migration from Old Version
 
