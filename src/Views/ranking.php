@@ -1,5 +1,9 @@
 <h2>Player Rankings</h2>
 
+<div style="margin-bottom: 20px;">
+    <a href="/player/search" class="btn">🔍 Search Players</a>
+</div>
+
 <div class="stat-grid" style="margin-bottom: 25px;">
     <div class="stat-card">
         <div class="stat-label">Total Players</div>
@@ -82,9 +86,9 @@
                         <?= number_format((int)$player['score']) ?>
                     </td>
                     <td>
-                        <span style="color: #3498db; font-weight: bold;">
+                        <a href="/player/<?= (int)$player['ship_id'] ?>" style="color: #3498db; font-weight: bold; text-decoration: none;">
                             <?= htmlspecialchars($player['character_name']) ?>
-                        </span>
+                        </a>
                     </td>
                     <td style="text-align: right;">
                         <?= number_format((int)$player['turns_used']) ?>
