@@ -20,6 +20,7 @@ use BNT\Models\Ranking;
 use BNT\Models\Upgrade;
 use BNT\Models\PlayerInfo;
 use BNT\Models\IBank;
+use BNT\Models\AttackLog;
 use BNT\Controllers\AuthController;
 use BNT\Controllers\GameController;
 use BNT\Controllers\PortController;
@@ -31,6 +32,7 @@ use BNT\Controllers\RankingController;
 use BNT\Controllers\UpgradeController;
 use BNT\Controllers\PlayerInfoController;
 use BNT\Controllers\IBankController;
+use BNT\Controllers\AttackLogController;
 use BNT\Controllers\AdminController;
 
 // Load configuration
@@ -54,6 +56,7 @@ $rankingModel = new Ranking($db);
 $upgradeModel = new Upgrade($db);
 $playerInfoModel = new PlayerInfo($db);
 $ibankModel = new IBank($db);
+$attackLogModel = new AttackLog($db);
 
 // Initialize controllers
 $authController = new AuthController($shipModel, $session, $config);
@@ -67,6 +70,7 @@ $rankingController = new RankingController($rankingModel, $shipModel, $session, 
 $upgradeController = new UpgradeController($shipModel, $upgradeModel, $session, $config);
 $playerInfoController = new PlayerInfoController($shipModel, $playerInfoModel, $session, $config);
 $ibankController = new IBankController($shipModel, $ibankModel, $session, $config);
+$attackLogController = new AttackLogController($shipModel, $attackLogModel, $session, $config);
 $adminController = new AdminController($shipModel, $universeModel, $planetModel, $teamModel, $session, $adminAuth, $config);
 
 // Define routes
@@ -137,6 +141,10 @@ $router->post('/ibank/withdraw', fn() => $ibankController->withdraw());
 $router->post('/ibank/transfer', fn() => $ibankController->transfer());
 $router->post('/ibank/loan', fn() => $ibankController->loan());
 $router->post('/ibank/repay', fn() => $ibankController->repay());
+
+$router->get('/logs', fn() => $attackLogController->index());
+$router->get('/logs/made', fn() => $attackLogController->attacksMade());
+$router->get('/logs/received', fn() => $attackLogController->attacksReceived());
 
 $router->get('/admin/login', fn() => $adminController->showLogin());
 $router->post('/admin/login', fn() => $adminController->login());
