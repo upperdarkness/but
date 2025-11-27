@@ -7,12 +7,14 @@ namespace BNT\Controllers;
 use BNT\Core\Session;
 use BNT\Models\Ship;
 use BNT\Models\Universe;
+use BNT\Models\Skill;
 
 class PortController
 {
     public function __construct(
         private Ship $shipModel,
         private Universe $universeModel,
+        private Skill $skillModel,
         private Session $session,
         private array $config
     ) {}
@@ -51,8 +53,12 @@ class PortController
         $portType = $sector['port_type'];
         $tradingConfig = $this->config['trading'];
 
+        // Get trading skill bonus
+        $skills = $this->skillModel->getSkills((int)$ship['ship_id']);
+        $tradingBonus = $this->skillModel->getTradingBonus($skills['trading']);
+
         // Calculate port prices based on inventory
-        $prices = $this->calculatePrices($sector, $tradingConfig);
+        $prices = $this->calculatePrices($sector, $tradingConfig, $tradingBonus);
 
         // Calculate ship capacity
         $maxHolds = $this->calculateHolds($ship['hull']);
@@ -101,13 +107,24 @@ class PortController
             exit;
         }
 
+        // Get trading skill bonus
+        $skills = $this->skillModel->getSkills((int)$ship['ship_id']);
+        $tradingBonus = $this->skillModel->getTradingBonus($skills['trading']);
+
         $tradingConfig = $this->config['trading'];
-        $prices = $this->calculatePrices($sector, $tradingConfig);
+        $prices = $this->calculatePrices($sector, $tradingConfig, $tradingBonus);
 
         if ($action === 'buy') {
             $this->buyFromPort($ship, $sector, $commodity, $amount, $prices[$commodity]['buy']);
         } else {
             $this->sellToPort($ship, $sector, $commodity, $amount, $prices[$commodity]['sell']);
+        }
+
+        // Award skill points for trading (1 point per 50,000 credits traded)
+        $tradeValue = $amount * ($action === 'buy' ? $prices[$commodity]['buy'] : $prices[$commodity]['sell']);
+        $skillPointsEarned = (int)floor($tradeValue / 50000);
+        if ($skillPointsEarned > 0) {
+            $this->skillModel->awardSkillPoints((int)$ship['ship_id'], $skillPointsEarned);
         }
 
         header('Location: /port');
@@ -179,7 +196,7 @@ class PortController
         $this->session->set('message', "Sold $amount $commodity for $earnings credits");
     }
 
-    private function calculatePrices(array $sector, array $tradingConfig): array
+    private function calculatePrices(array $sector, array $tradingConfig, float $tradingBonus = 0.0): array
     {
         $prices = [];
 
@@ -190,6 +207,12 @@ class PortController
             // Port sells high when low stock, buys low when high stock
             $sellPrice = $config['price'] + (int)(($config['rate'] - $portAmount) / $config['rate'] * $config['delta']);
             $buyPrice = $config['price'] - (int)(($portAmount - $config['rate']) / $config['rate'] * $config['delta']);
+
+            // Apply trading skill bonus (reduces buy price, increases sell price)
+            if ($tradingBonus > 0) {
+                $sellPrice = (int)($sellPrice * (1.0 - $tradingBonus / 100));
+                $buyPrice = (int)($buyPrice * (1.0 + $tradingBonus / 100));
+            }
 
             $prices[$commodity] = [
                 'buy' => max(1, $sellPrice),

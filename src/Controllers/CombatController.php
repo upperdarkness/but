@@ -10,6 +10,7 @@ use BNT\Models\Universe;
 use BNT\Models\Planet;
 use BNT\Models\Combat;
 use BNT\Models\AttackLog;
+use BNT\Models\Skill;
 
 class CombatController
 {
@@ -19,6 +20,7 @@ class CombatController
         private Planet $planetModel,
         private Combat $combatModel,
         private AttackLog $attackLogModel,
+        private Skill $skillModel,
         private Session $session,
         private array $config
     ) {}
@@ -124,8 +126,21 @@ class CombatController
             exit;
         }
 
+        // Get combat skill bonus
+        $skills = $this->skillModel->getSkills((int)$ship['ship_id']);
+        $combatMultiplier = $this->skillModel->getCombatMultiplier($skills['combat']);
+
         // Execute combat
         $result = $this->combatModel->shipVsShip($ship, $target);
+
+        // Apply combat skill multiplier to damage dealt
+        if ($combatMultiplier > 1.0 && $result['defender_damage'] > 0) {
+            $result['defender_damage'] = (int)($result['defender_damage'] * $combatMultiplier);
+            // Recheck if target is destroyed with bonus damage
+            if ($result['defender_damage'] >= $target['armor']) {
+                $result['defender_destroyed'] = true;
+            }
+        }
 
         // Use turn
         $this->shipModel->useTurns((int)$ship['ship_id'], 1);
@@ -191,6 +206,10 @@ class CombatController
                     $result['defender_damage'],
                     (int)$ship['sector']
                 );
+
+                // Award skill points for combat victory (3-5 points based on target strength)
+                $skillPointsEarned = min(5, max(3, (int)floor($target['rating'] / 20)));
+                $this->skillModel->awardSkillPoints((int)$ship['ship_id'], $skillPointsEarned);
             } else {
                 // Apply damage to target
                 if ($result['defender_damage'] > 0) {
@@ -258,8 +277,17 @@ class CombatController
             exit;
         }
 
+        // Get combat skill bonus
+        $skills = $this->skillModel->getSkills((int)$ship['ship_id']);
+        $combatMultiplier = $this->skillModel->getCombatMultiplier($skills['combat']);
+
         // Execute combat
         $result = $this->combatModel->shipVsPlanet($ship, $planet);
+
+        // Apply combat skill multiplier to planet damage dealt
+        if ($combatMultiplier > 1.0 && isset($result['planet_damage'])) {
+            $result['planet_damage'] = (int)($result['planet_damage'] * $combatMultiplier);
+        }
 
         // Use turns
         $this->shipModel->useTurns((int)$ship['ship_id'], 5);
@@ -295,6 +323,9 @@ class CombatController
             $this->session->set('message', 'Planet captured!');
             $resultType = 'destroyed';
             $damage = $result['planet_damage'] ?? 0;
+
+            // Award skill points for planet capture
+            $this->skillModel->awardSkillPoints((int)$ship['ship_id'], 3);
         } elseif ($result['success']) {
             // Damage planet base or defenses
             if ($planet['base']) {

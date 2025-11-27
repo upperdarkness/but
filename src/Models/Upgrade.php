@@ -167,7 +167,7 @@ class Upgrade
      * @param array $config Game configuration
      * @return array Result with success/error message
      */
-    public function upgradeComponent(int $shipId, string $component, array $config): array
+    public function upgradeComponent(int $shipId, string $component, array $config, float $discount = 0.0): array
     {
         // Validate component
         if (!self::isValidComponent($component)) {
@@ -186,6 +186,12 @@ class Upgrade
 
         $currentLevel = (int)$ship[$component];
         $upgradeCost = self::calculateUpgradeCost($currentLevel, $config);
+
+        // Apply engineering skill discount
+        if ($discount > 0) {
+            $upgradeCost = (int)($upgradeCost * (1.0 - $discount / 100));
+            $upgradeCost = max(1, $upgradeCost); // Minimum 1 credit
+        }
 
         // Check if player can afford it
         if ($ship['credits'] < $upgradeCost) {

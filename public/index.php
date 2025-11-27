@@ -21,6 +21,7 @@ use BNT\Models\Upgrade;
 use BNT\Models\PlayerInfo;
 use BNT\Models\IBank;
 use BNT\Models\AttackLog;
+use BNT\Models\Skill;
 use BNT\Controllers\AuthController;
 use BNT\Controllers\GameController;
 use BNT\Controllers\PortController;
@@ -33,6 +34,7 @@ use BNT\Controllers\UpgradeController;
 use BNT\Controllers\PlayerInfoController;
 use BNT\Controllers\IBankController;
 use BNT\Controllers\AttackLogController;
+use BNT\Controllers\SkillController;
 use BNT\Controllers\AdminController;
 
 // Load configuration
@@ -57,20 +59,22 @@ $upgradeModel = new Upgrade($db);
 $playerInfoModel = new PlayerInfo($db);
 $ibankModel = new IBank($db);
 $attackLogModel = new AttackLog($db);
+$skillModel = new Skill($db);
 
 // Initialize controllers
 $authController = new AuthController($shipModel, $session, $config);
 $gameController = new GameController($shipModel, $universeModel, $planetModel, $combatModel, $session, $config);
-$portController = new PortController($shipModel, $universeModel, $session, $config);
-$combatController = new CombatController($shipModel, $universeModel, $planetModel, $combatModel, $attackLogModel, $session, $config);
+$portController = new PortController($shipModel, $universeModel, $skillModel, $session, $config);
+$combatController = new CombatController($shipModel, $universeModel, $planetModel, $combatModel, $attackLogModel, $skillModel, $session, $config);
 $planetController = new PlanetController($shipModel, $planetModel, $session, $config);
 $teamController = new TeamController($shipModel, $teamModel, $session, $config);
 $messageController = new MessageController($shipModel, $messageModel, $session, $config);
 $rankingController = new RankingController($rankingModel, $shipModel, $session, $config);
-$upgradeController = new UpgradeController($shipModel, $upgradeModel, $session, $config);
+$upgradeController = new UpgradeController($shipModel, $upgradeModel, $skillModel, $session, $config);
 $playerInfoController = new PlayerInfoController($shipModel, $playerInfoModel, $session, $config);
 $ibankController = new IBankController($shipModel, $ibankModel, $session, $config);
 $attackLogController = new AttackLogController($shipModel, $attackLogModel, $session, $config);
+$skillController = new SkillController($shipModel, $skillModel, $session, $config);
 $adminController = new AdminController($shipModel, $universeModel, $planetModel, $teamModel, $session, $adminAuth, $config);
 
 // Define routes
@@ -145,6 +149,9 @@ $router->post('/ibank/repay', fn() => $ibankController->repay());
 $router->get('/logs', fn() => $attackLogController->index());
 $router->get('/logs/made', fn() => $attackLogController->attacksMade());
 $router->get('/logs/received', fn() => $attackLogController->attacksReceived());
+
+$router->get('/skills', fn() => $skillController->index());
+$router->post('/skills/allocate', fn() => $skillController->allocate());
 
 $router->get('/admin/login', fn() => $adminController->showLogin());
 $router->post('/admin/login', fn() => $adminController->login());

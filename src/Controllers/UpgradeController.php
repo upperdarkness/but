@@ -5,6 +5,7 @@ namespace BNT\Controllers;
 
 use BNT\Models\Ship;
 use BNT\Models\Upgrade;
+use BNT\Models\Skill;
 use BNT\Core\Session;
 
 class UpgradeController
@@ -12,6 +13,7 @@ class UpgradeController
     public function __construct(
         private Ship $shipModel,
         private Upgrade $upgradeModel,
+        private Skill $skillModel,
         private Session $session,
         private array $config
     ) {}
@@ -82,8 +84,12 @@ class UpgradeController
             exit;
         }
 
+        // Get engineering skill discount
+        $skills = $this->skillModel->getSkills($playerId);
+        $engineeringDiscount = $this->skillModel->getEngineeringDiscount($skills['engineering']);
+
         // Attempt upgrade
-        $result = $this->upgradeModel->upgradeComponent($playerId, $component, $this->config);
+        $result = $this->upgradeModel->upgradeComponent($playerId, $component, $this->config, $engineeringDiscount);
 
         if ($result['success']) {
             $this->session->set('message', sprintf(
@@ -93,6 +99,11 @@ class UpgradeController
                 $result['new_level'],
                 number_format($result['cost'])
             ));
+
+            // Award skill point every 5 upgrades
+            if (($result['new_level'] % 5) == 0) {
+                $this->skillModel->awardSkillPoints($playerId, 1);
+            }
         } else {
             $this->session->set('error', $result['error'] ?? 'Upgrade failed');
         }
