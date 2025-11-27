@@ -230,6 +230,10 @@ blacknova/
 - Score calculation and player statistics
 
 #### Gameplay Features
+- **Ship Types**: Four distinct ship classes (Scout, Merchant, Warship, Balanced)
+  - Unique multipliers for cargo, turn costs, combat, and defense
+  - Type-specific starting resources and bonuses
+  - Strategic depth for different playstyles
 - **Ship/Player Management**: Full ship status, equipment tracking, and character management
 - **Sector Navigation**: Real-time movement through the universe with turn management
 - **Port Trading**: Buy/sell commodities (ore, organics, goods, energy) with dynamic pricing
@@ -308,6 +312,63 @@ The original game had additional features that could be added:
 ### Getting Started
 
 After registering and logging in, you'll start with a basic ship and limited resources. Your goal is to build your empire through trading, combat, and strategic alliances.
+
+### Ship Types
+
+Choose your ship class during registration to match your preferred playstyle. Each type has unique strengths and weaknesses:
+
+**🚀 Scout - Fast & Efficient**
+- **Best for**: Exploration, hit-and-run tactics, turn efficiency
+- Cargo: 70% capacity (smaller holds)
+- Turn Cost: 50% (moves cost half as much)
+- Combat: 80% damage dealt
+- Defense: 70% armor/shields
+- Speed: 150% (fastest ship, better escape chance)
+- Starting Resources: 2000 credits, 200 turns
+- **Strategy**: Maximize movement and exploration. Use speed to avoid dangerous situations.
+
+**🚢 Merchant - Trading Specialist**
+- **Best for**: Trading, economic dominance, cargo hauling
+- Cargo: 200% capacity (huge holds)
+- Turn Cost: 120% (more expensive to move)
+- Combat: 60% damage dealt
+- Defense: 80% armor/shields
+- Speed: 80% (slower movement)
+- Starting Resources: 5000 credits, 100 turns, full cargo
+- **Strategy**: Focus on trading runs. Avoid combat. Join a team for protection.
+
+**⚔️ Warship - Combat Dominator**
+- **Best for**: Combat, piracy, military operations
+- Cargo: 60% capacity (limited holds)
+- Turn Cost: 150% (expensive to operate)
+- Combat: 150% damage dealt
+- Defense: 140% armor/shields
+- Speed: 90% (slightly slower)
+- Starting Resources: 1000 credits, 150 turns, 10 torpedoes, 5 fighters
+- **Strategy**: Hunt other players. Capture planets. Dominate through superior firepower.
+
+**🛸 Balanced - All-Arounder**
+- **Best for**: Flexible gameplay, learning the game, adaptation
+- Cargo: 100% capacity
+- Turn Cost: 100% (normal)
+- Combat: 100% damage dealt
+- Defense: 100% armor/shields
+- Speed: 100% (normal)
+- Starting Resources: 3000 credits, 150 turns, moderate cargo
+- **Strategy**: Adapt to any situation. Switch between trading and combat as needed.
+
+**Ship Type Impact**:
+- Cargo capacity affects maximum commodities you can carry
+- Turn costs determine how expensive movement is
+- Combat/defense affects battle effectiveness
+- Speed influences escape chances and initiative
+- Starting resources shape your early game strategy
+
+**Choosing Your Type**:
+- New players: Balanced or Merchant (safer, easier to learn)
+- Aggressive players: Warship (combat-focused)
+- Experienced players: Scout (requires skill, very rewarding)
+- Economic focus: Merchant (trading powerhouse)
 
 ### Trading & Economy
 
