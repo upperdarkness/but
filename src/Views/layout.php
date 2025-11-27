@@ -199,6 +199,7 @@
                 <a href="/teams">Teams</a>
                 <a href="/messages">Messages</a>
                 <a href="/upgrades">Upgrades</a>
+                <a href="/ibank">IGB</a>
                 <a href="/ranking">Rankings</a>
                 <a href="/logout">Logout</a>
             </div>

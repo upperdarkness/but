@@ -19,6 +19,7 @@ use BNT\Models\Message;
 use BNT\Models\Ranking;
 use BNT\Models\Upgrade;
 use BNT\Models\PlayerInfo;
+use BNT\Models\IBank;
 use BNT\Controllers\AuthController;
 use BNT\Controllers\GameController;
 use BNT\Controllers\PortController;
@@ -29,6 +30,7 @@ use BNT\Controllers\MessageController;
 use BNT\Controllers\RankingController;
 use BNT\Controllers\UpgradeController;
 use BNT\Controllers\PlayerInfoController;
+use BNT\Controllers\IBankController;
 use BNT\Controllers\AdminController;
 
 // Load configuration
@@ -51,6 +53,7 @@ $messageModel = new Message($db);
 $rankingModel = new Ranking($db);
 $upgradeModel = new Upgrade($db);
 $playerInfoModel = new PlayerInfo($db);
+$ibankModel = new IBank($db);
 
 // Initialize controllers
 $authController = new AuthController($shipModel, $session, $config);
@@ -63,6 +66,7 @@ $messageController = new MessageController($shipModel, $messageModel, $session, 
 $rankingController = new RankingController($rankingModel, $shipModel, $session, $config);
 $upgradeController = new UpgradeController($shipModel, $upgradeModel, $session, $config);
 $playerInfoController = new PlayerInfoController($shipModel, $playerInfoModel, $session, $config);
+$ibankController = new IBankController($shipModel, $ibankModel, $session, $config);
 $adminController = new AdminController($shipModel, $universeModel, $planetModel, $teamModel, $session, $adminAuth, $config);
 
 // Define routes
@@ -126,6 +130,13 @@ $router->post('/upgrades/downgrade', fn() => $upgradeController->downgrade());
 
 $router->get('/player/search', fn() => $playerInfoController->search());
 $router->get('/player/:id', fn($id) => $playerInfoController->show((int)$id));
+
+$router->get('/ibank', fn() => $ibankController->index());
+$router->post('/ibank/deposit', fn() => $ibankController->deposit());
+$router->post('/ibank/withdraw', fn() => $ibankController->withdraw());
+$router->post('/ibank/transfer', fn() => $ibankController->transfer());
+$router->post('/ibank/loan', fn() => $ibankController->loan());
+$router->post('/ibank/repay', fn() => $ibankController->repay());
 
 $router->get('/admin/login', fn() => $adminController->showLogin());
 $router->post('/admin/login', fn() => $adminController->login());
