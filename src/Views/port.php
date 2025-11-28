@@ -18,6 +18,15 @@ ob_start();
     <div class="stat-card">
         <div class="stat-label">Cargo Space</div>
         <div class="stat-value"><?= number_format($usedHolds) ?> / <?= number_format($maxHolds) ?></div>
+        <div class="stat-label" style="margin-top: 5px; font-size: 11px; color: #bbb;">
+            Ore: <?= number_format($ship['ship_ore']) ?> | 
+            Org: <?= number_format($ship['ship_organics']) ?> | 
+            Goods: <?= number_format($ship['ship_goods']) ?> | 
+            Energy: <?= number_format($ship['ship_energy']) ?>
+            <?php if ($ship['ship_colonists'] > 0): ?>
+            | Colonists: <?= number_format($ship['ship_colonists']) ?>
+            <?php endif; ?>
+        </div>
     </div>
 </div>
 

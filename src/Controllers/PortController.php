@@ -42,6 +42,14 @@ class PortController
     public function show(): void
     {
         $ship = $this->requireAuth();
+        
+        // Ensure we have the latest ship data (refresh from database)
+        $ship = $this->shipModel->find((int)$ship['ship_id']);
+        if (!$ship) {
+            $this->session->set('error', 'Ship not found');
+            header('Location: /main');
+            exit;
+        }
 
         $sector = $this->universeModel->getSector((int)$ship['sector']);
 
@@ -82,6 +90,9 @@ class PortController
     public function trade(): void
     {
         $ship = $this->requireAuth();
+        
+        // Refresh ship data to ensure we have the latest cargo values
+        $ship = $this->shipModel->find((int)$ship['ship_id']);
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: /port');
@@ -133,6 +144,7 @@ class PortController
             $this->skillModel->awardSkillPoints((int)$ship['ship_id'], $skillPointsEarned);
         }
 
+        // Refresh ship data after trade to ensure accurate display
         header('Location: /port');
         exit;
     }

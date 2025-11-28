@@ -175,7 +175,7 @@ class Upgrade
         }
 
         // Get current ship state
-        $ship = $this->db->fetch(
+        $ship = $this->db->fetchOne(
             "SELECT ship_id, credits, $component FROM ships WHERE ship_id = :ship_id AND ship_destroyed = FALSE",
             ['ship_id' => $shipId]
         );
@@ -244,7 +244,7 @@ class Upgrade
         }
 
         // Get current ship state
-        $ship = $this->db->fetch(
+        $ship = $this->db->fetchOne(
             "SELECT ship_id, credits, $component FROM ships WHERE ship_id = :ship_id AND ship_destroyed = FALSE",
             ['ship_id' => $shipId]
         );

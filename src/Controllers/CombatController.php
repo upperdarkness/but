@@ -59,7 +59,7 @@ class CombatController
         );
         $planets = $this->planetModel->getPlanetsInSector((int)$ship['sector']);
 
-        // Get sector defenses
+        // Get sector defenses (other players)
         $sql = "SELECT sd.*, s.character_name, s.team
                 FROM sector_defence sd
                 JOIN ships s ON sd.ship_id = s.ship_id
@@ -71,12 +71,26 @@ class CombatController
             'ship_id' => $ship['ship_id']
         ]);
 
+        // Get player's own deployed fighters in this sector (for recall)
+        $myFighters = $this->shipModel->getDb()->fetchAll(
+            "SELECT * FROM sector_defence 
+             WHERE sector_id = :sector 
+             AND ship_id = :ship_id 
+             AND defence_type = 'F'",
+            ['sector' => $ship['sector'], 'ship_id' => $ship['ship_id']]
+        );
+        
+        $totalMyFighters = 0;
+        foreach ($myFighters as $fighter) {
+            $totalMyFighters += $fighter['quantity'];
+        }
+
         $session = $this->session;
         $title = 'Combat - BlackNova Traders';
         $showHeader = true;
         
         // Extract variables to make them available to the view
-        extract(compact('ship', 'sector', 'shipsInSector', 'planets', 'defenses', 'session', 'title', 'showHeader'));
+        extract(compact('ship', 'sector', 'shipsInSector', 'planets', 'defenses', 'myFighters', 'totalMyFighters', 'session', 'title', 'showHeader'));
 
         ob_start();
         include __DIR__ . '/../Views/combat.php';
@@ -545,7 +559,8 @@ class CombatController
         // Check if player is in the same sector
         if ($defense['sector_id'] != $ship['sector']) {
             $this->session->set('error', 'You must be in the same sector to retrieve defenses');
-            header('Location: /defenses');
+            $returnTo = $_POST['return_to'] ?? 'defenses';
+            header('Location: /' . $returnTo);
             exit;
         }
 
@@ -563,7 +578,8 @@ class CombatController
 
         $typeName = $defense['defence_type'] === 'F' ? 'fighters' : 'mines';
         $this->session->set('message', "Retrieved {$defense['quantity']} $typeName");
-        header('Location: /defenses');
+        $returnTo = $_POST['return_to'] ?? 'defenses';
+        header('Location: /' . $returnTo);
         exit;
     }
 }

@@ -122,6 +122,33 @@ ob_start();
 </div>
 <?php endif; ?>
 
+<?php if ($totalMyFighters > 0): ?>
+<div style="margin-top: 30px; background: rgba(46, 204, 113, 0.2); padding: 20px; border-radius: 8px; border-left: 4px solid #2ecc71;">
+    <h3>🛡️ Recall Deployed Fighters</h3>
+    <p style="color: #e0e0e0; margin-bottom: 15px;">
+        You have <strong><?= number_format($totalMyFighters) ?></strong> fighters deployed in this sector.
+    </p>
+    <?php foreach ($myFighters as $fighter): ?>
+    <div style="background: rgba(15, 76, 117, 0.3); padding: 15px; border-radius: 5px; margin-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <strong><?= number_format($fighter['quantity']) ?> Fighters</strong>
+                <span style="color: #bbb; font-size: 14px; margin-left: 10px;">Deployed in Sector <?= (int)$ship['sector'] ?></span>
+            </div>
+            <form action="/defenses/retrieve" method="post" style="display: inline; margin: 0;">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($session->getCsrfToken()) ?>">
+                <input type="hidden" name="defence_id" value="<?= (int)$fighter['defence_id'] ?>">
+                <input type="hidden" name="return_to" value="combat">
+                <button type="submit" class="btn" style="background: rgba(46, 204, 113, 0.4); border-color: #2ecc71;">
+                    Recall All (<?= number_format($fighter['quantity']) ?>)
+                </button>
+            </form>
+        </div>
+    </div>
+    <?php endforeach; ?>
+</div>
+<?php endif; ?>
+
 <div style="margin-top: 30px;">
     <h3>Deploy Sector Defenses</h3>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
@@ -129,6 +156,10 @@ ob_start();
         <div style="background: rgba(15, 76, 117, 0.3); padding: 20px; border-radius: 8px; border: 1px solid rgba(52, 152, 219, 0.3);">
             <h4>Deploy Fighters</h4>
             <p>Fighters will attack enemy ships entering this sector.</p>
+            <p style="color: #bbb; font-size: 12px; margin-top: 5px;">
+                On ship: <?= number_format($ship['ship_fighters']) ?> | 
+                Deployed here: <?= number_format($totalMyFighters) ?>
+            </p>
             <form action="/combat/deploy" method="post">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($session->getCsrfToken()) ?>">
                 <input type="hidden" name="defense_type" value="F">
