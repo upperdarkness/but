@@ -67,7 +67,12 @@ class PortController
                      $ship['ship_goods'] + $ship['ship_energy'] +
                      $ship['ship_colonists'];
 
-        $data = compact('ship', 'sector', 'portType', 'prices', 'maxHolds', 'usedHolds');
+        $session = $this->session;
+        $title = 'Port - BlackNova Traders';
+        $showHeader = true;
+        
+        // Extract variables to make them available to the view
+        extract(compact('ship', 'sector', 'portType', 'prices', 'maxHolds', 'usedHolds', 'session', 'title', 'showHeader'));
 
         ob_start();
         include __DIR__ . '/../Views/port.php';

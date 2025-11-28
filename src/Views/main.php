@@ -1,6 +1,5 @@
 <?php
-$title = 'Main - BlackNova Traders';
-$showHeader = true;
+// $title and $showHeader should be set by controller
 ob_start();
 ?>
 
@@ -121,5 +120,7 @@ ob_start();
 
 <?php
 $content = ob_get_clean();
+// Variables should be in scope from controller's extract(), but ensure they're available
+// The layout needs $ship, $session, $title, and $showHeader
 include __DIR__ . '/layout.php';
 ?>

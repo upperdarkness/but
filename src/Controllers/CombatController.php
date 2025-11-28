@@ -66,12 +66,17 @@ class CombatController
                 WHERE sd.sector_id = :sector
                 AND sd.ship_id != :ship_id";
 
-        $defenses = $this->shipModel->db->fetchAll($sql, [
+        $defenses = $this->shipModel->getDb()->fetchAll($sql, [
             'sector' => $ship['sector'],
             'ship_id' => $ship['ship_id']
         ]);
 
-        $data = compact('ship', 'sector', 'shipsInSector', 'planets', 'defenses');
+        $session = $this->session;
+        $title = 'Combat - BlackNova Traders';
+        $showHeader = true;
+        
+        // Extract variables to make them available to the view
+        extract(compact('ship', 'sector', 'shipsInSector', 'planets', 'defenses', 'session', 'title', 'showHeader'));
 
         ob_start();
         include __DIR__ . '/../Views/combat.php';
@@ -417,7 +422,7 @@ class CombatController
                 AND ship_id = :ship
                 AND defence_type = :type";
 
-        $existing = $this->shipModel->db->fetchOne($sql, [
+        $existing = $this->shipModel->getDb()->fetchOne($sql, [
             'sector' => $ship['sector'],
             'ship' => $ship['ship_id'],
             'type' => $defenseType
@@ -425,13 +430,13 @@ class CombatController
 
         if ($existing) {
             // Update existing
-            $this->shipModel->db->execute(
+            $this->shipModel->getDb()->execute(
                 'UPDATE sector_defence SET quantity = quantity + :qty WHERE defence_id = :id',
                 ['qty' => $quantity, 'id' => $existing['defence_id']]
             );
         } else {
             // Create new
-            $this->shipModel->db->execute(
+            $this->shipModel->getDb()->execute(
                 'INSERT INTO sector_defence (ship_id, sector_id, defence_type, quantity) VALUES (:ship, :sector, :type, :qty)',
                 [
                     'ship' => $ship['ship_id'],
@@ -488,7 +493,7 @@ class CombatController
                 WHERE sd.ship_id = :ship_id
                 ORDER BY sd.sector_id, sd.defence_type";
 
-        $defenses = $this->shipModel->db->fetchAll($sql, ['ship_id' => $ship['ship_id']]);
+        $defenses = $this->shipModel->getDb()->fetchAll($sql, ['ship_id' => $ship['ship_id']]);
 
         // Calculate totals
         $totalFighters = 0;
@@ -526,7 +531,7 @@ class CombatController
         $defenseId = (int)($_POST['defence_id'] ?? 0);
 
         // Get defense
-        $defense = $this->shipModel->db->fetchOne(
+        $defense = $this->shipModel->getDb()->fetchOne(
             'SELECT * FROM sector_defence WHERE defence_id = :id AND ship_id = :ship_id',
             ['id' => $defenseId, 'ship_id' => $ship['ship_id']]
         );
@@ -551,7 +556,7 @@ class CombatController
         ]);
 
         // Remove defense
-        $this->shipModel->db->execute(
+        $this->shipModel->getDb()->execute(
             'DELETE FROM sector_defence WHERE defence_id = :id',
             ['id' => $defenseId]
         );

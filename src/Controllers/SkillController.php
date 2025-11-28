@@ -50,7 +50,16 @@ class SkillController
             $skillDetails[$skillType]['next_cost'] = $this->calculateNextLevelCost($skills[$skillType]);
         }
 
-        require __DIR__ . '/../Views/skills.php';
+        $session = $this->session;
+        $title = 'Character Skills';
+        $showHeader = true;
+        
+        // Extract variables to make them available to the view
+        extract(compact('ship', 'skills', 'skillDetails', 'session', 'title', 'showHeader'));
+
+        ob_start();
+        include __DIR__ . '/../Views/skills.php';
+        echo ob_get_clean();
     }
 
     /**
@@ -65,7 +74,8 @@ class SkillController
         }
 
         // Verify CSRF token
-        if (!$this->session->verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        $token = $_POST['csrf_token'] ?? '';
+        if (!$this->session->validateCsrfToken($token)) {
             $this->session->set('error', 'Invalid security token');
             header('Location: /skills');
             exit;

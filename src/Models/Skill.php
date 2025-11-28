@@ -28,13 +28,13 @@ class Skill
      */
     public function getSkills(int $shipId): array
     {
-        $result = $this->db->query(
+        $result = $this->db->fetchOne(
             'SELECT skill_trading, skill_combat, skill_engineering, skill_leadership, skill_points
              FROM ships WHERE ship_id = :id',
             ['id' => $shipId]
         );
 
-        if (empty($result)) {
+        if (!$result) {
             return [
                 'trading' => 0,
                 'combat' => 0,
@@ -45,11 +45,11 @@ class Skill
         }
 
         return [
-            'trading' => (int)$result[0]['skill_trading'],
-            'combat' => (int)$result[0]['skill_combat'],
-            'engineering' => (int)$result[0]['skill_engineering'],
-            'leadership' => (int)$result[0]['skill_leadership'],
-            'points' => (int)$result[0]['skill_points']
+            'trading' => (int)($result['skill_trading'] ?? 0),
+            'combat' => (int)($result['skill_combat'] ?? 0),
+            'engineering' => (int)($result['skill_engineering'] ?? 0),
+            'leadership' => (int)($result['skill_leadership'] ?? 0),
+            'points' => (int)($result['skill_points'] ?? 0)
         ];
     }
 

@@ -55,7 +55,7 @@ ob_start();
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($session->getCsrfToken()) ?>">
                     <input type="hidden" name="action" value="sell">
                     <input type="hidden" name="commodity" value="<?= htmlspecialchars($commodity) ?>">
-                    <input type="number" name="amount" min="1" max="10000" value="100" style="width: 80px; display: inline-block;">
+                    <input type="number" name="amount" min="1" max="<?= (int)$ship["ship_$commodity"] ?>" value="<?= (int)$ship["ship_$commodity"] ?>" style="width: 80px; display: inline-block;">
                     <button type="submit" class="btn">Sell</button>
                 </form>
             </td>

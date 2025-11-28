@@ -159,7 +159,7 @@ class ShipType
                 'ship_ore' => 5,
                 'ship_organics' => 5,
                 'ship_goods' => 5,
-                'ship_energy' => 50
+                'ship_energy' => 55  // Scout has 70% capacity (70 max), so 5+5+5+55 = 70 (at limit)
             ],
             self::MERCHANT => [
                 'credits' => 5000,      // More starting money
@@ -167,7 +167,7 @@ class ShipType
                 'ship_ore' => 20,
                 'ship_organics' => 20,
                 'ship_goods' => 20,
-                'ship_energy' => 100
+                'ship_energy' => 120  // Merchant has 200% capacity (200 max), so 20+20+20+120 = 180 is under limit
             ],
             self::WARSHIP => [
                 'credits' => 1000,      // Least starting money
@@ -175,7 +175,7 @@ class ShipType
                 'ship_ore' => 0,
                 'ship_organics' => 0,
                 'ship_goods' => 0,
-                'ship_energy' => 100,
+                'ship_energy' => 60,  // Warship has 60% capacity (60 max), so 0+0+0+60 = 60 (at limit)
                 'torps' => 10,          // Start with torpedoes
                 'ship_fighters' => 5    // Start with fighters
             ],
@@ -185,7 +185,7 @@ class ShipType
                 'ship_ore' => 10,
                 'ship_organics' => 10,
                 'ship_goods' => 10,
-                'ship_energy' => 75
+                'ship_energy' => 70  // Reduced from 75 to keep total at 100 (max capacity for hull 0)
             ]
         ];
 

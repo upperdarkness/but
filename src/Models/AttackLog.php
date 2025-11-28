@@ -61,17 +61,13 @@ class AttackLog
      */
     public function getAttacksMadeBy(int $playerId, int $limit = 50, int $offset = 0): array
     {
-        return $this->db->fetchAll(
-            'SELECT * FROM attack_logs
+        // PDO requires LIMIT/OFFSET to be integers, so we cast them in the query
+        $sql = 'SELECT * FROM attack_logs
             WHERE attacker_id = :player_id
             ORDER BY timestamp DESC
-            LIMIT :limit OFFSET :offset',
-            [
-                'player_id' => $playerId,
-                'limit' => $limit,
-                'offset' => $offset
-            ]
-        );
+            LIMIT ' . (int)$limit . ' OFFSET ' . (int)$offset;
+        
+        return $this->db->fetchAll($sql, ['player_id' => $playerId]);
     }
 
     /**
@@ -84,17 +80,13 @@ class AttackLog
      */
     public function getAttacksReceivedBy(int $playerId, int $limit = 50, int $offset = 0): array
     {
-        return $this->db->fetchAll(
-            'SELECT * FROM attack_logs
+        // PDO requires LIMIT/OFFSET to be integers, so we cast them in the query
+        $sql = 'SELECT * FROM attack_logs
             WHERE defender_id = :player_id
             ORDER BY timestamp DESC
-            LIMIT :limit OFFSET :offset',
-            [
-                'player_id' => $playerId,
-                'limit' => $limit,
-                'offset' => $offset
-            ]
-        );
+            LIMIT ' . (int)$limit . ' OFFSET ' . (int)$offset;
+        
+        return $this->db->fetchAll($sql, ['player_id' => $playerId]);
     }
 
     /**
@@ -106,16 +98,13 @@ class AttackLog
      */
     public function getRecentActivity(int $playerId, int $limit = 20): array
     {
-        return $this->db->fetchAll(
-            'SELECT * FROM attack_logs
+        // PDO requires LIMIT to be an integer, so we cast it in the query
+        $sql = 'SELECT * FROM attack_logs
             WHERE attacker_id = :player_id OR defender_id = :player_id
             ORDER BY timestamp DESC
-            LIMIT :limit',
-            [
-                'player_id' => $playerId,
-                'limit' => $limit
-            ]
-        );
+            LIMIT ' . (int)$limit;
+        
+        return $this->db->fetchAll($sql, ['player_id' => $playerId]);
     }
 
     /**
@@ -127,7 +116,7 @@ class AttackLog
     public function getStatistics(int $playerId): array
     {
         // Attacks made
-        $attacksMade = $this->db->fetch(
+        $attacksMade = $this->db->fetchOne(
             'SELECT
                 COUNT(*) as total,
                 SUM(CASE WHEN result IN (\'success\', \'destroyed\') THEN 1 ELSE 0 END) as successful,
@@ -135,10 +124,10 @@ class AttackLog
             FROM attack_logs
             WHERE attacker_id = :player_id',
             ['player_id' => $playerId]
-        );
+        ) ?? [];
 
         // Attacks received
-        $attacksReceived = $this->db->fetch(
+        $attacksReceived = $this->db->fetchOne(
             'SELECT
                 COUNT(*) as total,
                 SUM(CASE WHEN result = \'destroyed\' THEN 1 ELSE 0 END) as times_destroyed,
@@ -146,7 +135,7 @@ class AttackLog
             FROM attack_logs
             WHERE defender_id = :player_id',
             ['player_id' => $playerId]
-        );
+        ) ?? [];
 
         return [
             'attacks_made' => (int)($attacksMade['total'] ?? 0),
@@ -189,7 +178,7 @@ class AttackLog
             default => 'SELECT COUNT(*) as count FROM attack_logs WHERE attacker_id = :player_id OR defender_id = :player_id'
         };
 
-        $result = $this->db->fetch($query, ['player_id' => $playerId]);
+        $result = $this->db->fetchOne($query, ['player_id' => $playerId]);
         return (int)($result['count'] ?? 0);
     }
 }

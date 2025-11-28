@@ -23,6 +23,7 @@ class AuthController
             exit;
         }
 
+        $session = $this->session;
         ob_start();
         include __DIR__ . '/../Views/login.php';
         return ob_get_clean();
@@ -102,7 +103,7 @@ class AuthController
 
         $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
         $password = $_POST['password'] ?? '';
-        $characterName = filter_input(INPUT_POST, 'character_name', FILTER_SANITIZE_STRING);
+        $characterName = htmlspecialchars(trim($_POST['character_name'] ?? ''), ENT_QUOTES, 'UTF-8');
         $shipType = $_POST['ship_type'] ?? ShipType::BALANCED;
 
         // Validation

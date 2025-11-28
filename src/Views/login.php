@@ -15,7 +15,7 @@ ob_start();
     <div style="background: rgba(15, 76, 117, 0.3); padding: 30px; border-radius: 10px; border: 1px solid rgba(52, 152, 219, 0.3); margin-bottom: 20px;">
         <h2 style="color: #3498db; margin-bottom: 20px;">Login</h2>
         <form action="/login" method="post">
-            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($this->session->getCsrfToken()) ?>">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($session->getCsrfToken()) ?>">
 
             <div style="margin-bottom: 15px;">
                 <label>Email:</label>
@@ -34,7 +34,7 @@ ob_start();
     <div style="background: rgba(15, 76, 117, 0.3); padding: 30px; border-radius: 10px; border: 1px solid rgba(52, 152, 219, 0.3);">
         <h2 style="color: #3498db; margin-bottom: 20px;">New Player Registration</h2>
         <form action="/register" method="post">
-            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($this->session->getCsrfToken()) ?>">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($session->getCsrfToken()) ?>">
 
             <div style="margin-bottom: 15px;">
                 <label>Email:</label>

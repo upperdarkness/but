@@ -22,14 +22,19 @@ class AttackLogController
     public function index(): void
     {
         // Require authentication
-        $playerId = $this->session->get('player_id');
+        if (!$this->session->isLoggedIn()) {
+            header('Location: /');
+            exit;
+        }
+
+        $playerId = $this->session->getUserId();
         if (!$playerId) {
             header('Location: /');
             exit;
         }
 
         // Get current player's ship
-        $ship = $this->shipModel->getShipById($playerId);
+        $ship = $this->shipModel->find($playerId);
         if (!$ship) {
             $this->session->set('error', 'Ship not found');
             header('Location: /');
@@ -57,14 +62,19 @@ class AttackLogController
     public function attacksMade(): void
     {
         // Require authentication
-        $playerId = $this->session->get('player_id');
+        if (!$this->session->isLoggedIn()) {
+            header('Location: /');
+            exit;
+        }
+
+        $playerId = $this->session->getUserId();
         if (!$playerId) {
             header('Location: /');
             exit;
         }
 
         // Get current player's ship
-        $ship = $this->shipModel->getShipById($playerId);
+        $ship = $this->shipModel->find($playerId);
         if (!$ship) {
             $this->session->set('error', 'Ship not found');
             header('Location: /');
@@ -100,14 +110,19 @@ class AttackLogController
     public function attacksReceived(): void
     {
         // Require authentication
-        $playerId = $this->session->get('player_id');
+        if (!$this->session->isLoggedIn()) {
+            header('Location: /');
+            exit;
+        }
+
+        $playerId = $this->session->getUserId();
         if (!$playerId) {
             header('Location: /');
             exit;
         }
 
         // Get current player's ship
-        $ship = $this->shipModel->getShipById($playerId);
+        $ship = $this->shipModel->find($playerId);
         if (!$ship) {
             $this->session->set('error', 'Ship not found');
             header('Location: /');

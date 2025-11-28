@@ -86,7 +86,7 @@ $authController = new AuthController($shipModel, $session, $config);
 $gameController = new GameController($shipModel, $universeModel, $planetModel, $combatModel, $session, $config);
 $portController = new PortController($shipModel, $universeModel, $skillModel, $session, $config);
 $combatController = new CombatController($shipModel, $universeModel, $planetModel, $combatModel, $attackLogModel, $skillModel, $session, $config);
-$planetController = new PlanetController($shipModel, $planetModel, $session, $config);
+$planetController = new PlanetController($shipModel, $universeModel, $planetModel, $session, $config);
 $teamController = new TeamController($shipModel, $teamModel, $session, $config);
 $messageController = new MessageController($shipModel, $messageModel, $session, $config);
 $rankingController = new RankingController($rankingModel, $shipModel, $session, $config);
@@ -190,12 +190,15 @@ $router->get('/admin/logs', fn() => $adminController->logs());
 $router->get('/admin/statistics', fn() => $adminController->statistics());
 
 // Dispatch request
-$method = $_SERVER['REQUEST_METHOD'];
-$uri = $_SERVER['REQUEST_URI'];
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+$uri = $_SERVER['REQUEST_URI'] ?? '/';
 
 try {
     $router->dispatch($method, $uri);
 } catch (Exception $e) {
     http_response_code(500);
     echo '<h1>Error</h1><p>An error occurred: ' . htmlspecialchars($e->getMessage()) . '</p>';
+    if (ini_get('display_errors')) {
+        echo '<pre>' . htmlspecialchars($e->getTraceAsString()) . '</pre>';
+    }
 }

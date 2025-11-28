@@ -84,18 +84,18 @@ class AdminController
 
         // Get statistics
         $stats = [
-            'total_players' => $this->shipModel->db->fetchOne('SELECT COUNT(*) as count FROM ships')['count'],
-            'active_players' => $this->shipModel->db->fetchOne(
+            'total_players' => $this->shipModel->getDb()->fetchOne('SELECT COUNT(*) as count FROM ships')['count'],
+            'active_players' => $this->shipModel->getDb()->fetchOne(
                 "SELECT COUNT(*) as count FROM ships WHERE last_login > NOW() - INTERVAL '7 days'"
             )['count'],
-            'total_teams' => $this->teamModel->db->fetchOne('SELECT COUNT(*) as count FROM teams')['count'],
-            'total_planets' => $this->planetModel->db->fetchOne('SELECT COUNT(*) as count FROM planets')['count'],
-            'claimed_planets' => $this->planetModel->db->fetchOne('SELECT COUNT(*) as count FROM planets WHERE owner != 0')['count'],
-            'total_sectors' => $this->universeModel->db->fetchOne('SELECT COUNT(*) as count FROM universe')['count'],
+            'total_teams' => $this->teamModel->getDb()->fetchOne('SELECT COUNT(*) as count FROM teams')['count'],
+            'total_planets' => $this->planetModel->getDb()->fetchOne('SELECT COUNT(*) as count FROM planets')['count'],
+            'claimed_planets' => $this->planetModel->getDb()->fetchOne('SELECT COUNT(*) as count FROM planets WHERE owner != 0')['count'],
+            'total_sectors' => $this->universeModel->getDb()->fetchOne('SELECT COUNT(*) as count FROM universe')['count'],
         ];
 
         // Recent players
-        $recentPlayers = $this->shipModel->db->fetchAll(
+        $recentPlayers = $this->shipModel->getDb()->fetchAll(
             'SELECT ship_id, character_name, email, last_login, score, credits
              FROM ships
              ORDER BY last_login DESC
@@ -128,7 +128,7 @@ class AdminController
 
         $sql .= ' ORDER BY last_login DESC LIMIT 100';
 
-        $players = $this->shipModel->db->fetchAll($sql, $params);
+        $players = $this->shipModel->getDb()->fetchAll($sql, $params);
 
         $data = compact('players', 'search', 'session', 'config');
 
@@ -266,10 +266,10 @@ class AdminController
         $this->adminAuth->requireAuth();
 
         // Get sector count
-        $sectorCount = $this->universeModel->db->fetchOne('SELECT COUNT(*) as count FROM universe')['count'];
+        $sectorCount = $this->universeModel->getDb()->fetchOne('SELECT COUNT(*) as count FROM universe')['count'];
 
         // Get sample sectors
-        $sectors = $this->universeModel->db->fetchAll(
+        $sectors = $this->universeModel->getDb()->fetchAll(
             'SELECT * FROM universe ORDER BY sector_id LIMIT 20'
         );
 
@@ -295,8 +295,8 @@ class AdminController
         }
 
         // Clear existing universe
-        $this->universeModel->db->execute('DELETE FROM universe');
-        $this->universeModel->db->execute('DELETE FROM planets');
+        $this->universeModel->getDb()->execute('DELETE FROM universe');
+        $this->universeModel->getDb()->execute('DELETE FROM planets');
 
         // Generate new universe
         $this->universeModel->generate($this->config['game']['sector_max']);
@@ -328,7 +328,7 @@ class AdminController
         $this->adminAuth->requireAuth();
 
         // Get recent combat logs
-        $combatLogs = $this->shipModel->db->fetchAll(
+        $combatLogs = $this->shipModel->getDb()->fetchAll(
             'SELECT l.*, s.character_name
              FROM logs l
              JOIN ships s ON l.ship_id = s.ship_id
@@ -354,39 +354,39 @@ class AdminController
         // Gather comprehensive statistics
         $stats = [
             'players' => [
-                'total' => $this->shipModel->db->fetchOne('SELECT COUNT(*) as count FROM ships')['count'],
-                'active_today' => $this->shipModel->db->fetchOne(
+                'total' => $this->shipModel->getDb()->fetchOne('SELECT COUNT(*) as count FROM ships')['count'],
+                'active_today' => $this->shipModel->getDb()->fetchOne(
                     "SELECT COUNT(*) as count FROM ships WHERE last_login > NOW() - INTERVAL '1 day'"
                 )['count'],
-                'active_week' => $this->shipModel->db->fetchOne(
+                'active_week' => $this->shipModel->getDb()->fetchOne(
                     "SELECT COUNT(*) as count FROM ships WHERE last_login > NOW() - INTERVAL '7 days'"
                 )['count'],
-                'destroyed' => $this->shipModel->db->fetchOne('SELECT COUNT(*) as count FROM ships WHERE ship_destroyed = true')['count'],
+                'destroyed' => $this->shipModel->getDb()->fetchOne('SELECT COUNT(*) as count FROM ships WHERE ship_destroyed = true')['count'],
             ],
             'economy' => [
-                'total_credits' => $this->shipModel->db->fetchOne('SELECT SUM(credits) as total FROM ships')['total'] ?? 0,
-                'avg_credits' => round($this->shipModel->db->fetchOne('SELECT AVG(credits) as avg FROM ships')['avg'] ?? 0),
-                'richest' => $this->shipModel->db->fetchOne('SELECT MAX(credits) as max FROM ships')['max'] ?? 0,
+                'total_credits' => $this->shipModel->getDb()->fetchOne('SELECT SUM(credits) as total FROM ships')['total'] ?? 0,
+                'avg_credits' => round($this->shipModel->getDb()->fetchOne('SELECT AVG(credits) as avg FROM ships')['avg'] ?? 0),
+                'richest' => $this->shipModel->getDb()->fetchOne('SELECT MAX(credits) as max FROM ships')['max'] ?? 0,
             ],
             'military' => [
-                'total_fighters' => $this->shipModel->db->fetchOne('SELECT SUM(ship_fighters) as total FROM ships')['total'] ?? 0,
-                'total_defenses' => $this->shipModel->db->fetchOne('SELECT SUM(quantity) as total FROM sector_defence')['total'] ?? 0,
+                'total_fighters' => $this->shipModel->getDb()->fetchOne('SELECT SUM(ship_fighters) as total FROM ships')['total'] ?? 0,
+                'total_defenses' => $this->shipModel->getDb()->fetchOne('SELECT SUM(quantity) as total FROM sector_defence')['total'] ?? 0,
             ],
             'planets' => [
-                'total' => $this->planetModel->db->fetchOne('SELECT COUNT(*) as count FROM planets')['count'],
-                'claimed' => $this->planetModel->db->fetchOne('SELECT COUNT(*) as count FROM planets WHERE owner != 0')['count'],
-                'with_bases' => $this->planetModel->db->fetchOne('SELECT COUNT(*) as count FROM planets WHERE base = true')['count'],
+                'total' => $this->planetModel->getDb()->fetchOne('SELECT COUNT(*) as count FROM planets')['count'],
+                'claimed' => $this->planetModel->getDb()->fetchOne('SELECT COUNT(*) as count FROM planets WHERE owner != 0')['count'],
+                'with_bases' => $this->planetModel->getDb()->fetchOne('SELECT COUNT(*) as count FROM planets WHERE base = true')['count'],
             ],
             'teams' => [
-                'total' => $this->teamModel->db->fetchOne('SELECT COUNT(*) as count FROM teams')['count'],
-                'avg_members' => round($this->teamModel->db->fetchOne(
+                'total' => $this->teamModel->getDb()->fetchOne('SELECT COUNT(*) as count FROM teams')['count'],
+                'avg_members' => round($this->teamModel->getDb()->fetchOne(
                     'SELECT AVG(member_count) as avg FROM (SELECT COUNT(*) as member_count FROM ships WHERE team != 0 GROUP BY team) as t'
                 )['avg'] ?? 0, 1),
             ],
         ];
 
         // Top players
-        $topPlayers = $this->shipModel->db->fetchAll(
+        $topPlayers = $this->shipModel->getDb()->fetchAll(
             'SELECT character_name, score, credits, ship_fighters
              FROM ships
              WHERE ship_destroyed = false

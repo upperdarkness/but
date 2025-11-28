@@ -22,14 +22,19 @@ class RankingController
     public function index(): void
     {
         // Require authentication
-        $playerId = $this->session->get('player_id');
+        if (!$this->session->isLoggedIn()) {
+            header('Location: /');
+            exit;
+        }
+
+        $playerId = $this->session->getUserId();
         if (!$playerId) {
             header('Location: /');
             exit;
         }
 
         // Get current player's ship data
-        $ship = $this->shipModel->getShipById($playerId);
+        $ship = $this->shipModel->find($playerId);
         if (!$ship) {
             $this->session->set('error', 'Ship not found');
             header('Location: /');
@@ -79,14 +84,19 @@ class RankingController
     public function teams(): void
     {
         // Require authentication
-        $playerId = $this->session->get('player_id');
+        if (!$this->session->isLoggedIn()) {
+            header('Location: /');
+            exit;
+        }
+
+        $playerId = $this->session->getUserId();
         if (!$playerId) {
             header('Location: /');
             exit;
         }
 
         // Get current player's ship data
-        $ship = $this->shipModel->getShipById($playerId);
+        $ship = $this->shipModel->find($playerId);
         if (!$ship) {
             $this->session->set('error', 'Ship not found');
             header('Location: /');

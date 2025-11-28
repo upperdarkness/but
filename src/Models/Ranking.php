@@ -21,8 +21,8 @@ class Ranking
         $orderBy = match($sortBy) {
             'turns' => 's.turns_used DESC, s.character_name ASC',
             'login' => 's.last_login DESC, s.character_name ASC',
-            'good' => 's.rating DESC, s.character_name ASC',
-            'bad' => 's.rating ASC, s.character_name ASC',
+            'good' => 'rating DESC, s.character_name ASC',
+            'bad' => 'rating ASC, s.character_name ASC',
             'alliance' => 't.team_name DESC, s.character_name ASC',
             'efficiency' => 'efficiency DESC, s.character_name ASC',
             default => 's.score DESC, s.character_name ASC'
@@ -36,7 +36,7 @@ class Ranking
                 s.turns_used,
                 s.last_login,
                 EXTRACT(EPOCH FROM s.last_login) as last_login_timestamp,
-                s.rating,
+                0 as rating,
                 t.team_name,
                 CASE
                     WHEN s.turns_used < 150 THEN 0
@@ -47,13 +47,12 @@ class Ranking
                     ELSE false
                 END as is_online
             FROM ships s
-            LEFT JOIN teams t ON s.team_id = t.team_id
+            LEFT JOIN teams t ON s.team = t.id
             WHERE s.ship_destroyed = FALSE
             ORDER BY {$orderBy}
-            LIMIT :limit
-        ";
+            LIMIT " . (int)$limit;
 
-        return $this->db->fetchAll($query, ['limit' => $limit]);
+        return $this->db->fetchAll($query);
     }
 
     /**
@@ -63,7 +62,7 @@ class Ranking
      */
     public function getPlayerCount(): int
     {
-        $result = $this->db->fetch(
+        $result = $this->db->fetchOne(
             'SELECT COUNT(*) as count FROM ships WHERE ship_destroyed = FALSE'
         );
 
@@ -89,7 +88,7 @@ class Ranking
             WHERE ship_id = :player_id
         ";
 
-        $result = $this->db->fetch($query, ['player_id' => $playerId]);
+        $result = $this->db->fetchOne($query, ['player_id' => $playerId]);
 
         return $result ? (int)$result['rank'] : null;
     }
@@ -104,22 +103,21 @@ class Ranking
     {
         $query = "
             SELECT
-                t.team_id,
+                t.id as team_id,
                 t.team_name,
                 COUNT(s.ship_id) as member_count,
                 SUM(s.score) as total_score,
                 AVG(s.score)::integer as avg_score,
                 MAX(s.score) as top_player_score
             FROM teams t
-            INNER JOIN ships s ON t.team_id = s.team_id
+            INNER JOIN ships s ON t.id = s.team
             WHERE s.ship_destroyed = FALSE
-            GROUP BY t.team_id, t.team_name
+            GROUP BY t.id, t.team_name
             HAVING COUNT(s.ship_id) > 0
             ORDER BY total_score DESC
-            LIMIT :limit
-        ";
+            LIMIT " . (int)$limit;
 
-        return $this->db->fetchAll($query, ['limit' => $limit]);
+        return $this->db->fetchAll($query);
     }
 
     /**

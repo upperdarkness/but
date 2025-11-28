@@ -63,8 +63,13 @@ class GameController
                      $ship['ship_goods'] + $ship['ship_energy'] +
                      $ship['ship_colonists'];
 
-        $data = compact('ship', 'sector', 'links', 'planets', 'shipsInSector', 'maxHolds', 'usedHolds');
-
+        $session = $this->session;
+        $title = 'Main - BlackNova Traders';
+        $showHeader = true;
+        
+        // Extract variables to make them available to the view
+        extract(compact('ship', 'sector', 'links', 'planets', 'shipsInSector', 'maxHolds', 'usedHolds', 'session', 'title', 'showHeader'));
+        
         ob_start();
         include __DIR__ . '/../Views/main.php';
         echo ob_get_clean();
@@ -167,9 +172,14 @@ class GameController
                 JOIN ships s ON sd.ship_id = s.ship_id
                 WHERE sd.sector_id = :sector_id";
 
-        $defenses = $this->shipModel->db->fetchAll($sql, ['sector_id' => $ship['sector']]);
+        $defenses = $this->shipModel->getDb()->fetchAll($sql, ['sector_id' => $ship['sector']]);
 
-        $data = compact('ship', 'sector', 'links', 'planets', 'shipsInSector', 'defenses');
+        $session = $this->session;
+        $title = 'Scan - BlackNova Traders';
+        $showHeader = true;
+        
+        // Extract variables to make them available to the view
+        extract(compact('ship', 'sector', 'links', 'planets', 'shipsInSector', 'defenses', 'session', 'title', 'showHeader'));
 
         ob_start();
         include __DIR__ . '/../Views/scan.php';
@@ -281,7 +291,7 @@ class GameController
     private function logMovement(int $shipId, int $sectorId): void
     {
         $sql = "INSERT INTO movement_log (ship_id, sector_id, time) VALUES (:ship_id, :sector_id, NOW())";
-        $this->shipModel->db->execute($sql, ['ship_id' => $shipId, 'sector_id' => $sectorId]);
+        $this->shipModel->getDb()->execute($sql, ['ship_id' => $shipId, 'sector_id' => $sectorId]);
     }
 
     private function removeMines(int $sectorId, int $count): void
@@ -289,20 +299,20 @@ class GameController
         $sql = "SELECT * FROM sector_defence
                 WHERE sector_id = :sector AND defence_type = 'M'
                 ORDER BY quantity ASC";
-        $mines = $this->shipModel->db->fetchAll($sql, ['sector' => $sectorId]);
+        $mines = $this->shipModel->getDb()->fetchAll($sql, ['sector' => $sectorId]);
 
         $remaining = $count;
         foreach ($mines as $mine) {
             if ($remaining <= 0) break;
 
             if ($mine['quantity'] <= $remaining) {
-                $this->shipModel->db->execute(
+                $this->shipModel->getDb()->execute(
                     'DELETE FROM sector_defence WHERE defence_id = :id',
                     ['id' => $mine['defence_id']]
                 );
                 $remaining -= $mine['quantity'];
             } else {
-                $this->shipModel->db->execute(
+                $this->shipModel->getDb()->execute(
                     'UPDATE sector_defence SET quantity = quantity - :count WHERE defence_id = :id',
                     ['count' => $remaining, 'id' => $mine['defence_id']]
                 );

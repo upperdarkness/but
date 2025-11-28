@@ -72,4 +72,9 @@ abstract class Model
         $sql = "DELETE FROM {$this->table} WHERE {$this->primaryKey} = :id";
         return $this->db->execute($sql, ['id' => $id]);
     }
+
+    public function getDb(): Database
+    {
+        return $this->db;
+    }
 }

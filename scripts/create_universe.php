@@ -97,7 +97,7 @@ for ($i = 0; $i < $numPlanets; $i++) {
     $planetModel->create([
         'planet_name' => $name,
         'sector_id' => $sectorId,
-        'owner' => 0,
+        'owner' => null,
         'organics' => random_int(10000, 50000),
         'ore' => random_int(10000, 50000),
         'goods' => random_int(10000, 50000),

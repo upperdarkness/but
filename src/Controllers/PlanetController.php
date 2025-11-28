@@ -404,7 +404,7 @@ class PlanetController
                 GROUP BY owner
                 ORDER BY base_count DESC";
 
-        $bases = $this->planetModel->db->fetchAll($sql, ['sector' => $sectorId]);
+        $bases = $this->planetModel->getDb()->fetchAll($sql, ['sector' => $sectorId]);
 
         $minBases = $this->config['game']['min_bases_to_own'] ?? 3;
 

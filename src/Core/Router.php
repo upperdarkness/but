@@ -49,7 +49,14 @@ class Router
                         $middleware();
                     }
 
-                    return call_user_func_array($route['handler'], $matches);
+                    $result = call_user_func_array($route['handler'], $matches);
+                    
+                    // If handler returns a string, output it
+                    if (is_string($result)) {
+                        echo $result;
+                    }
+                    
+                    return $result;
                 }
             }
         }
