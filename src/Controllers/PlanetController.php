@@ -63,7 +63,12 @@ class PlanetController
         $isOwner = $planet['owner'] == $ship['ship_id'];
         $isOnPlanet = $ship['on_planet'] && $ship['planet_id'] == $planetId;
 
-        $data = compact('ship', 'planet', 'ownerName', 'isOwner', 'isOnPlanet');
+        $session = $this->session;
+        $title = 'Planet - BlackNova Traders';
+        $showHeader = true;
+        
+        // Extract variables to make them available to the view
+        extract(compact('ship', 'planet', 'ownerName', 'isOwner', 'isOnPlanet', 'session', 'title', 'showHeader'));
 
         ob_start();
         include __DIR__ . '/../Views/planet.php';
@@ -154,7 +159,12 @@ class PlanetController
                      $ship['ship_goods'] + $ship['ship_energy'] +
                      $ship['ship_colonists'];
 
-        $data = compact('ship', 'planet', 'isOnPlanet', 'maxHolds', 'usedHolds');
+        $session = $this->session;
+        $title = 'Manage Planet - BlackNova Traders';
+        $showHeader = true;
+        
+        // Extract variables to make them available to the view
+        extract(compact('ship', 'planet', 'isOnPlanet', 'maxHolds', 'usedHolds', 'session', 'title', 'showHeader'));
 
         ob_start();
         include __DIR__ . '/../Views/planet_manage.php';
@@ -450,7 +460,12 @@ class PlanetController
             if ($planet['base']) $totals['bases']++;
         }
 
-        $data = compact('ship', 'planets', 'totals');
+        $session = $this->session;
+        $title = 'My Planets - BlackNova Traders';
+        $showHeader = true;
+        
+        // Extract variables to make them available to the view
+        extract(compact('ship', 'planets', 'totals', 'session', 'title', 'showHeader'));
 
         ob_start();
         include __DIR__ . '/../Views/planets.php';

@@ -25,10 +25,18 @@ ob_start();
     </div>
 </div>
 
+<?php if ($isStarbaseSector): ?>
+<div class="alert alert-success" style="background: rgba(46, 204, 113, 0.3); border-color: #2ecc71;">
+    <strong>🛡️ Starbase Sector (Sector 1)</strong><br>
+    You are in a protected starbase sector. No combat, attacks, or defense deployment is allowed here.
+    You are safe from enemy attacks in this sector.
+</div>
+<?php else: ?>
 <div class="alert alert-info">
     <strong>Combat System:</strong> Attack ships, planets, or deploy defensive mines and fighters.
     Combat consumes turns and resources. Be strategic!
 </div>
+<?php endif; ?>
 
 <?php if (!empty($shipsInSector)): ?>
 <div style="margin-top: 30px;">
@@ -57,7 +65,9 @@ ob_start();
                     <?php endif; ?>
                 </td>
                 <td>
-                    <?php if ($ship['team'] == 0 || $otherShip['team'] != $ship['team']): ?>
+                    <?php if ($isStarbaseSector): ?>
+                    <span style="color: #7f8c8d;">Protected Zone</span>
+                    <?php elseif ($ship['team'] == 0 || $otherShip['team'] != $ship['team']): ?>
                     <form action="/combat/attack/ship/<?= (int)$otherShip['ship_id'] ?>" method="post" style="display: inline;"
                           onsubmit="return confirm('Are you sure you want to attack <?= htmlspecialchars($otherShip['character_name']) ?>?');">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($session->getCsrfToken()) ?>">
@@ -101,7 +111,9 @@ ob_start();
                 <td><?= number_format($planet['fighters']) ?></td>
                 <td><?= $planet['base'] ? '<span style="color: #e74c3c;">Yes</span>' : 'No' ?></td>
                 <td>
-                    <?php if ($planet['owner'] != 0 && $planet['owner'] != $ship['ship_id']): ?>
+                    <?php if ($isStarbaseSector): ?>
+                    <span style="color: #7f8c8d;">Protected Zone</span>
+                    <?php elseif ($planet['owner'] != 0 && $planet['owner'] != $ship['ship_id']): ?>
                     <form action="/combat/attack/planet/<?= (int)$planet['planet_id'] ?>" method="post" style="display: inline;"
                           onsubmit="return confirm('Are you sure you want to attack this planet? Costs 5 turns.');">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($session->getCsrfToken()) ?>">
@@ -122,7 +134,7 @@ ob_start();
 </div>
 <?php endif; ?>
 
-<?php if ($totalMyFighters > 0): ?>
+<?php if (!$isStarbaseSector && $totalMyFighters > 0): ?>
 <div style="margin-top: 30px; background: rgba(46, 204, 113, 0.2); padding: 20px; border-radius: 8px; border-left: 4px solid #2ecc71;">
     <h3>🛡️ Recall Deployed Fighters</h3>
     <p style="color: #e0e0e0; margin-bottom: 15px;">
@@ -149,6 +161,7 @@ ob_start();
 </div>
 <?php endif; ?>
 
+<?php if (!$isStarbaseSector): ?>
 <div style="margin-top: 30px;">
     <h3>Deploy Sector Defenses</h3>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
@@ -185,6 +198,12 @@ ob_start();
         </div>
     </div>
 </div>
+<?php else: ?>
+<div style="margin-top: 30px; background: rgba(15, 76, 117, 0.2); padding: 20px; border-radius: 8px;">
+    <h3>Defense Deployment</h3>
+    <p style="color: #bbb;">Defense deployment is not available in the starbase sector.</p>
+</div>
+<?php endif; ?>
 
 <?php if (!empty($defenses)): ?>
 <div style="margin-top: 30px;">

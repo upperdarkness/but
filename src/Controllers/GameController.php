@@ -63,12 +63,15 @@ class GameController
                      $ship['ship_goods'] + $ship['ship_energy'] +
                      $ship['ship_colonists'];
 
+        // Check if in starbase sector
+        $isStarbaseSector = ($ship['sector'] == 1);
+        
         $session = $this->session;
         $title = 'Main - BlackNova Traders';
         $showHeader = true;
         
         // Extract variables to make them available to the view
-        extract(compact('ship', 'sector', 'links', 'planets', 'shipsInSector', 'maxHolds', 'usedHolds', 'session', 'title', 'showHeader'));
+        extract(compact('ship', 'sector', 'links', 'planets', 'shipsInSector', 'maxHolds', 'usedHolds', 'isStarbaseSector', 'session', 'title', 'showHeader'));
         
         ob_start();
         include __DIR__ . '/../Views/main.php';
@@ -205,7 +208,22 @@ class GameController
             exit;
         }
 
-        $data = compact('ship', 'planet');
+        // Get owner name if owned
+        $ownerName = null;
+        if ($planet['owner'] > 0) {
+            $owner = $this->shipModel->find($planet['owner']);
+            $ownerName = $owner ? $owner['character_name'] : 'Unknown';
+        }
+
+        $isOwner = $planet['owner'] == $ship['ship_id'];
+        $isOnPlanet = $ship['on_planet'] && $ship['planet_id'] == $planetId;
+
+        $session = $this->session;
+        $title = 'Planet - BlackNova Traders';
+        $showHeader = true;
+        
+        // Extract variables to make them available to the view
+        extract(compact('ship', 'planet', 'ownerName', 'isOwner', 'isOnPlanet', 'session', 'title', 'showHeader'));
 
         ob_start();
         include __DIR__ . '/../Views/planet.php';

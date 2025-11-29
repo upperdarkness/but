@@ -267,6 +267,11 @@ class Combat
             'message' => '',
         ];
 
+        // Starbase sector (Sector 1) is protected - no mines can attack
+        if ($sectorId == 1) {
+            return $result;
+        }
+
         // Small ships can avoid mines
         if ($hullSize < 8) {
             return $result;
@@ -311,6 +316,11 @@ class Combat
             'ship_destroyed' => false,
             'message' => '',
         ];
+
+        // Starbase sector (Sector 1) is protected - no fighters can attack
+        if ($sectorId == 1) {
+            return $result;
+        }
 
         // Get enemy fighters in sector
         $sql = "SELECT sd.quantity, sd.ship_id, s.team
@@ -443,6 +453,11 @@ class Combat
             'enemy_losses' => 0,
             'message' => '',
         ];
+
+        // Starbase sector (Sector 1) is protected - no defense combat
+        if ($sectorId == 1) {
+            return $result;
+        }
 
         // Get deploying ship's team
         $ship = $this->db->fetchOne('SELECT team FROM ships WHERE ship_id = :id', ['id' => $deployingShipId]);

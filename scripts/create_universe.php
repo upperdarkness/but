@@ -26,7 +26,15 @@ echo "Creating $numSectors sectors...\n";
 $portTypes = ['none', 'none', 'none', 'ore', 'organics', 'goods', 'energy'];
 $sectorIds = [];
 
-for ($i = 1; $i <= $numSectors; $i++) {
+// Check if Sector 1 already exists (starbase), start from sector 2 if so
+$existingSector1 = $db->query("SELECT sector_id FROM universe WHERE sector_id = 1", [])->fetch();
+$startFrom = $existingSector1 ? 2 : 1;
+if ($existingSector1) {
+    $sectorIds[] = 1; // Include existing Sector 1 in our list
+    echo "  Sector 1 (Starbase) already exists, starting from Sector 2...\n";
+}
+
+for ($i = $startFrom; $i <= $numSectors; $i++) {
     $portType = $portTypes[array_rand($portTypes)];
 
     $initialInventory = [
@@ -60,9 +68,39 @@ for ($i = 1; $i <= $numSectors; $i++) {
 
 echo "Creating links between sectors...\n";
 
-// Create links - each sector connected to 3-7 random sectors
+// First, create a path that connects all sectors to ensure reachability
+// This creates a chain: 1->2->3->...->n, ensuring all sectors are connected
+echo "  Creating base connectivity path...\n";
+for ($i = 0; $i < count($sectorIds) - 1; $i++) {
+    $currentSector = $sectorIds[$i];
+    $nextSector = $sectorIds[$i + 1];
+    
+    // Create bidirectional link
+    $db->execute(
+        'INSERT INTO links (link_start, link_dest) VALUES (:start, :dest) ON CONFLICT DO NOTHING',
+        ['start' => $currentSector, 'dest' => $nextSector]
+    );
+    $db->execute(
+        'INSERT INTO links (link_start, link_dest) VALUES (:start, :dest) ON CONFLICT DO NOTHING',
+        ['start' => $nextSector, 'dest' => $currentSector]
+    );
+}
+
+// Also create a loop back from last to first for better connectivity
+$db->execute(
+    'INSERT INTO links (link_start, link_dest) VALUES (:start, :dest) ON CONFLICT DO NOTHING',
+    ['start' => $sectorIds[count($sectorIds) - 1], 'dest' => $sectorIds[0]]
+);
+$db->execute(
+    'INSERT INTO links (link_start, link_dest) VALUES (:start, :dest) ON CONFLICT DO NOTHING',
+    ['start' => $sectorIds[0], 'dest' => $sectorIds[count($sectorIds) - 1]]
+);
+
+// Now add additional random links for variety (2-5 per sector)
+// This creates shortcuts and alternative routes
+echo "  Adding additional random links for variety...\n";
 foreach ($sectorIds as $sectorId) {
-    $numLinks = random_int(3, 7);
+    $numLinks = random_int(2, 5);
     $linkedTo = [];
 
     for ($j = 0; $j < $numLinks; $j++) {

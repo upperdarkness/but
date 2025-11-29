@@ -89,8 +89,11 @@ class CombatController
         $title = 'Combat - BlackNova Traders';
         $showHeader = true;
         
+        // Check if in starbase sector (no combat allowed)
+        $isStarbaseSector = ($ship['sector'] == 1);
+        
         // Extract variables to make them available to the view
-        extract(compact('ship', 'sector', 'shipsInSector', 'planets', 'defenses', 'myFighters', 'totalMyFighters', 'session', 'title', 'showHeader'));
+        extract(compact('ship', 'sector', 'shipsInSector', 'planets', 'defenses', 'myFighters', 'totalMyFighters', 'isStarbaseSector', 'session', 'title', 'showHeader'));
 
         ob_start();
         include __DIR__ . '/../Views/combat.php';
@@ -103,6 +106,13 @@ class CombatController
     public function attackShip(int $targetId): void
     {
         $ship = $this->requireAuth();
+
+        // Check if in starbase sector (no combat allowed)
+        if ($ship['sector'] == 1) {
+            $this->session->set('error', 'Combat is not allowed in the starbase sector (Sector 1)');
+            header('Location: /combat');
+            exit;
+        }
 
         // Verify CSRF
         $token = $_POST['csrf_token'] ?? '';
@@ -272,6 +282,13 @@ class CombatController
     {
         $ship = $this->requireAuth();
 
+        // Check if in starbase sector (no combat allowed)
+        if ($ship['sector'] == 1) {
+            $this->session->set('error', 'Combat is not allowed in the starbase sector (Sector 1)');
+            header('Location: /combat');
+            exit;
+        }
+
         // Verify CSRF
         $token = $_POST['csrf_token'] ?? '';
         if (!$this->session->validateCsrfToken($token)) {
@@ -402,6 +419,13 @@ class CombatController
     public function deployDefense(): void
     {
         $ship = $this->requireAuth();
+
+        // Check if in starbase sector (no defenses allowed)
+        if ($ship['sector'] == 1) {
+            $this->session->set('error', 'Defenses cannot be deployed in the starbase sector (Sector 1)');
+            header('Location: /combat');
+            exit;
+        }
 
         // Verify CSRF
         $token = $_POST['csrf_token'] ?? '';

@@ -5,6 +5,14 @@ ob_start();
 
 <h2>Sector <?= (int)$ship['sector'] ?> - <?= htmlspecialchars($sector['sector_name'] ?? 'Unknown') ?></h2>
 
+<?php if ($isStarbaseSector): ?>
+<div class="alert alert-success" style="background: rgba(46, 204, 113, 0.3); border-color: #2ecc71; margin-bottom: 20px;">
+    <strong>🛡️ Starbase Sector</strong><br>
+    You are in Sector 1, a protected starbase sector. No combat, attacks, or defense deployment is allowed here.
+    You are completely safe from enemy attacks while in this sector.
+</div>
+<?php endif; ?>
+
 <div class="stat-grid">
     <div class="stat-card">
         <div class="stat-label">Turns</div>
