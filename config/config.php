@@ -44,6 +44,7 @@ return [
     'starbase' => [
         'fighter_price' => 50,      // Price per fighter
         'torpedo_price' => 100,     // Price per torpedo
+        'max_hull_level' => 5,      // Ships with hull above this level are towed out of sector 1
     ],
 
     // Security Configuration

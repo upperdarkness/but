@@ -75,6 +75,7 @@ $scheduler->registerTask('igb_interest', [$schedulerTasks, 'igbInterest'], 2);
 $scheduler->registerTask('ranking_update', [$schedulerTasks, 'updateRankings'], 30);
 $scheduler->registerTask('news_generation', [$schedulerTasks, 'generateNews'], 15);
 $scheduler->registerTask('fighter_degradation', [$schedulerTasks, 'degradeFighters'], 6);
+$scheduler->registerTask('tow_large_ships', [$schedulerTasks, 'towLargeShips'], 2);
 $scheduler->registerTask('cleanup', [$schedulerTasks, 'cleanup'], 60);
 
 // Run scheduler (executes only tasks that are due)

@@ -378,4 +378,82 @@ class SchedulerTasks
 
         return "Cleanup: " . implode(", ", $actions);
     }
+
+    /**
+     * Tow large ships out of sector 1 (starbase)
+     * Ships above the configured hull level are automatically towed to a random connected sector
+     */
+    public function towLargeShips(): string
+    {
+        $maxHullLevel = $this->config['starbase']['max_hull_level'] ?? 5;
+        
+        // Find ships in sector 1 with hull above threshold
+        $ships = $this->db->fetchAll(
+            "SELECT ship_id, character_name, hull, sector 
+             FROM ships 
+             WHERE sector = 1 
+             AND hull > :max_hull 
+             AND ship_destroyed = FALSE",
+            ['max_hull' => $maxHullLevel]
+        );
+
+        if (empty($ships)) {
+            return "No large ships to tow from sector 1";
+        }
+
+        $towedCount = 0;
+        $errors = [];
+
+        foreach ($ships as $ship) {
+            // Get connected sectors from sector 1
+            $linkedSectors = $this->db->fetchAll(
+                "SELECT u.sector_id 
+                 FROM universe u
+                 INNER JOIN links l ON u.sector_id = l.link_dest
+                 WHERE l.link_start = 1
+                 ORDER BY u.sector_id",
+                []
+            );
+
+            if (empty($linkedSectors)) {
+                $errors[] = "Ship {$ship['character_name']} (ID: {$ship['ship_id']}) - No connected sectors found";
+                continue;
+            }
+
+            // Randomly select a connected sector
+            $randomIndex = array_rand($linkedSectors);
+            $targetSector = (int)$linkedSectors[$randomIndex]['sector_id'];
+
+            // Move the ship
+            $this->db->execute(
+                "UPDATE ships SET sector = :sector WHERE ship_id = :ship_id",
+                ['sector' => $targetSector, 'ship_id' => $ship['ship_id']]
+            );
+
+            // Create log entry
+            // Log type 99 = tow event (using a high number to avoid conflicts)
+            $logData = json_encode([
+                'action' => 'towed_from_starbase',
+                'from_sector' => 1,
+                'to_sector' => $targetSector,
+                'reason' => "Hull level {$ship['hull']} exceeds maximum allowed level {$maxHullLevel}",
+                'hull_level' => $ship['hull']
+            ]);
+
+            $this->db->execute(
+                "INSERT INTO logs (ship_id, log_type, log_data, logged_at) 
+                 VALUES (:ship_id, 99, :log_data, NOW())",
+                ['ship_id' => $ship['ship_id'], 'log_data' => $logData]
+            );
+
+            $towedCount++;
+        }
+
+        $result = "Towed $towedCount large ship(s) from sector 1";
+        if (!empty($errors)) {
+            $result .= ". Errors: " . implode('; ', $errors);
+        }
+
+        return $result;
+    }
 }
