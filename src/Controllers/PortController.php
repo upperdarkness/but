@@ -54,7 +54,10 @@ class PortController
 
         $sector = $this->universeModel->getSector((int)$ship['sector']);
 
-        if (!$sector || $sector['port_type'] === 'none') {
+        // Check if this is a starbase (starbases always have port access, even if port_type is 'none')
+        $isStarbase = $this->universeModel->isStarbase((int)$ship['sector']);
+        
+        if (!$sector || ($sector['port_type'] === 'none' && !$isStarbase)) {
             $this->session->set('error', 'No port in this sector');
             header('Location: /main');
             exit;

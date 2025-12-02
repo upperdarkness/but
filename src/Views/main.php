@@ -85,9 +85,9 @@ ob_start();
 </table>
 <?php endif; ?>
 
-<?php if ($sector['port_type'] !== 'none'): ?>
+<?php if ($sector['port_type'] !== 'none' || $isStarbaseSector): ?>
 <div style="margin-top: 30px;">
-    <h3>Port - <?= htmlspecialchars(ucfirst($sector['port_type'])) ?> Trade</h3>
+    <h3>Port<?php if ($sector['port_type'] !== 'none'): ?> - <?= htmlspecialchars(ucfirst($sector['port_type'])) ?> Trade<?php else: ?> - Starbase<?php endif; ?></h3>
     <a href="/port" class="btn">Enter Port</a>
 </div>
 <?php endif; ?>
