@@ -135,19 +135,82 @@ ob_start();
                     <td><strong>Linked Sectors:</strong></td>
                     <td><?= count($linkedSectors) ?></td>
                 </tr>
-                <?php if (!empty($linkedSectors)): ?>
-                <tr>
-                    <td><strong>Links To:</strong></td>
-                    <td>
-                        <?php foreach ($linkedSectors as $link): ?>
-                            <a href="/admin/universe/sector/<?= (int)$link['sector_id'] ?>" style="color: #3498db; margin-right: 10px;">
-                                Sector <?= (int)$link['sector_id'] ?>
-                            </a>
-                        <?php endforeach; ?>
-                    </td>
-                </tr>
-                <?php endif; ?>
             </table>
+        </div>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(52, 152, 219, 0.2);">
+            <h3>Navigation Links</h3>
+            
+            <?php if (!empty($linkedSectors)): ?>
+            <div style="margin-bottom: 20px;">
+                <h4>Current Links</h4>
+                <table style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Sector ID</th>
+                            <th>Name</th>
+                            <th>Port Type</th>
+                            <th>Starbase</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($linkedSectors as $link): ?>
+                        <tr>
+                            <td><?= (int)$link['sector_id'] ?></td>
+                            <td><?= htmlspecialchars($link['sector_name']) ?></td>
+                            <td>
+                                <?php if ($link['port_type'] && $link['port_type'] !== 'none'): ?>
+                                    <span style="color: #2ecc71;"><?= htmlspecialchars(ucfirst($link['port_type'])) ?></span>
+                                <?php else: ?>
+                                    <span style="color: #7f8c8d;">None</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($link['is_starbase'] ?? false): ?>
+                                    <span style="color: #2ecc71;">🛡️ Yes</span>
+                                <?php else: ?>
+                                    <span style="color: #7f8c8d;">No</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <a href="/admin/universe/sector/<?= (int)$link['sector_id'] ?>" class="btn" style="padding: 5px 10px; font-size: 12px; margin-right: 5px;">
+                                    View
+                                </a>
+                                <form action="/admin/universe/sector/<?= (int)$sector['sector_id'] ?>/link/delete" method="post" style="display: inline;">
+                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($session->getCsrfToken()) ?>">
+                                    <input type="hidden" name="target_sector" value="<?= (int)$link['sector_id'] ?>">
+                                    <button type="submit" class="btn" style="padding: 5px 10px; font-size: 12px; background: rgba(231, 76, 60, 0.3); border-color: #e74c3c;"
+                                            onclick="return confirm('Are you sure you want to remove the link to Sector <?= (int)$link['sector_id'] ?>?');">
+                                        Remove Link
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            <?php else: ?>
+            <p style="color: #7f8c8d;">No navigation links currently exist for this sector.</p>
+            <?php endif; ?>
+
+            <div style="background: rgba(15, 76, 117, 0.3); padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <h4>Create New Link</h4>
+                <form action="/admin/universe/sector/<?= (int)$sector['sector_id'] ?>/link/create" method="post">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($session->getCsrfToken()) ?>">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <label style="white-space: nowrap;">Link to Sector ID:</label>
+                        <input type="number" name="target_sector" min="1" required style="width: 150px;">
+                        <button type="submit" class="btn" style="background: rgba(46, 204, 113, 0.3); border-color: #2ecc71;">
+                            Create Link
+                        </button>
+                    </div>
+                    <small style="color: #7f8c8d; display: block; margin-top: 5px;">
+                        Links are bidirectional. Creating a link from Sector <?= (int)$sector['sector_id'] ?> to Sector X will also create a link from Sector X back to Sector <?= (int)$sector['sector_id'] ?>.
+                    </small>
+                </form>
+            </div>
         </div>
 
         <div style="display: flex; gap: 10px; margin-top: 30px;">

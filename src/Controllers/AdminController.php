@@ -408,6 +408,101 @@ class AdminController
     }
 
     /**
+     * Create navigation link between sectors
+     */
+    public function createLink(int $sectorId): void
+    {
+        $this->adminAuth->requireAuth();
+
+        $token = $_POST['csrf_token'] ?? '';
+        if (!$this->session->validateCsrfToken($token)) {
+            $this->session->set('error', 'Invalid request');
+            header('Location: /admin/universe/sector/' . $sectorId);
+            exit;
+        }
+
+        $sector = $this->universeModel->getSector($sectorId);
+        if (!$sector) {
+            $this->session->set('error', 'Source sector not found');
+            header('Location: /admin/universe');
+            exit;
+        }
+
+        $targetSectorId = max(1, (int)($_POST['target_sector'] ?? 0));
+        
+        if ($targetSectorId === $sectorId) {
+            $this->session->set('error', 'Cannot link a sector to itself');
+            header('Location: /admin/universe/sector/' . $sectorId);
+            exit;
+        }
+
+        $targetSector = $this->universeModel->getSector($targetSectorId);
+        if (!$targetSector) {
+            $this->session->set('error', "Target sector $targetSectorId not found");
+            header('Location: /admin/universe/sector/' . $sectorId);
+            exit;
+        }
+
+        // Check if link already exists
+        if ($this->universeModel->isLinked($sectorId, $targetSectorId)) {
+            $this->session->set('error', "Link already exists between Sector $sectorId and Sector $targetSectorId");
+            header('Location: /admin/universe/sector/' . $sectorId);
+            exit;
+        }
+
+        // Create bidirectional link
+        $this->universeModel->createLink($sectorId, $targetSectorId);
+        $this->session->set('message', "Link created between Sector $sectorId and Sector $targetSectorId");
+
+        header('Location: /admin/universe/sector/' . $sectorId);
+        exit;
+    }
+
+    /**
+     * Delete navigation link between sectors
+     */
+    public function deleteLink(int $sectorId): void
+    {
+        $this->adminAuth->requireAuth();
+
+        $token = $_POST['csrf_token'] ?? '';
+        if (!$this->session->validateCsrfToken($token)) {
+            $this->session->set('error', 'Invalid request');
+            header('Location: /admin/universe/sector/' . $sectorId);
+            exit;
+        }
+
+        $sector = $this->universeModel->getSector($sectorId);
+        if (!$sector) {
+            $this->session->set('error', 'Source sector not found');
+            header('Location: /admin/universe');
+            exit;
+        }
+
+        $targetSectorId = max(1, (int)($_POST['target_sector'] ?? 0));
+        
+        if ($targetSectorId === $sectorId) {
+            $this->session->set('error', 'Invalid target sector');
+            header('Location: /admin/universe/sector/' . $sectorId);
+            exit;
+        }
+
+        // Check if link exists
+        if (!$this->universeModel->isLinked($sectorId, $targetSectorId)) {
+            $this->session->set('error', "Link does not exist between Sector $sectorId and Sector $targetSectorId");
+            header('Location: /admin/universe/sector/' . $sectorId);
+            exit;
+        }
+
+        // Delete bidirectional link
+        $this->universeModel->deleteLink($sectorId, $targetSectorId);
+        $this->session->set('message', "Link removed between Sector $sectorId and Sector $targetSectorId");
+
+        header('Location: /admin/universe/sector/' . $sectorId);
+        exit;
+    }
+
+    /**
      * Regenerate universe
      */
     public function regenerateUniverse(): void
