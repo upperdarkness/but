@@ -100,6 +100,7 @@ ob_start();
                 </div>
             </div>
 
+            <?php if ($currentPortType !== 'none'): ?>
             <div>
                 <h3>Port Inventory</h3>
 
@@ -128,6 +129,12 @@ ob_start();
                     <input type="number" name="port_colonists" value="<?= (int)($sector['port_colonists'] ?? 0) ?>" min="0" style="width: 100%;">
                 </div>
             </div>
+            <?php else: ?>
+            <div>
+                <h3>Port Inventory</h3>
+                <p style="color: #7f8c8d; font-style: italic;">No port inventory available - this sector has no port.</p>
+            </div>
+            <?php endif; ?>
         </div>
 
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(52, 152, 219, 0.2);">
