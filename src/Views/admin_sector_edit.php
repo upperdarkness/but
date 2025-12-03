@@ -137,8 +137,18 @@ ob_start();
             <?php endif; ?>
         </div>
 
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(52, 152, 219, 0.2);">
-            <h3>Planets in This Sector</h3>
+        <div style="display: flex; gap: 10px; margin-top: 30px;">
+            <button type="submit" class="btn" style="flex: 1; background: rgba(46, 204, 113, 0.3); border-color: #2ecc71;">
+                Update Sector
+            </button>
+            <a href="/admin/universe" class="btn" style="flex: 1; text-align: center;">
+                Back to Universe
+            </a>
+        </div>
+    </form>
+
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(52, 152, 219, 0.2);">
+        <h3>Planets in This Sector</h3>
             
             <?php if (!empty($planets)): ?>
             <div style="margin-bottom: 20px;">
@@ -209,10 +219,10 @@ ob_start();
                     </small>
                 </form>
             </div>
-        </div>
+    </div>
 
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(52, 152, 219, 0.2);">
-            <h3>Sector Statistics</h3>
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(52, 152, 219, 0.2);">
+        <h3>Sector Statistics</h3>
             <table style="width: 100%;">
                 <tr>
                     <td><strong>Linked Sectors:</strong></td>
@@ -294,17 +304,7 @@ ob_start();
                     </small>
                 </form>
             </div>
-        </div>
-
-        <div style="display: flex; gap: 10px; margin-top: 30px;">
-            <button type="submit" class="btn" style="flex: 1; background: rgba(46, 204, 113, 0.3); border-color: #2ecc71;">
-                Update Sector
-            </button>
-            <a href="/admin/universe" class="btn" style="flex: 1; text-align: center;">
-                Back to Universe
-            </a>
-        </div>
-    </form>
+    </div>
 </div>
 
 <?php

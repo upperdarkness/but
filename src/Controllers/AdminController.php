@@ -388,18 +388,34 @@ class AdminController
         $updates = [
             'sector_name' => trim($_POST['sector_name'] ?? ''),
             'port_type' => $portType,
-            'port_ore' => max(0, (int)($_POST['port_ore'] ?? 0)),
-            'port_organics' => max(0, (int)($_POST['port_organics'] ?? 0)),
-            'port_goods' => max(0, (int)($_POST['port_goods'] ?? 0)),
-            'port_energy' => max(0, (int)($_POST['port_energy'] ?? 0)),
-            'port_colonists' => max(0, (int)($_POST['port_colonists'] ?? 0)),
             'beacon' => trim($_POST['beacon'] ?? ''),
             'is_starbase' => isset($_POST['is_starbase']) && $_POST['is_starbase'] === '1',
             'zone_id' => max(1, (int)($_POST['zone_id'] ?? 1)),
         ];
 
-        $this->universeModel->update($sectorId, $updates);
-        $this->session->set('message', "Sector $sectorId updated successfully");
+        // Only update port inventory if there's a port
+        if ($portType !== 'none') {
+            $updates['port_ore'] = max(0, (int)($_POST['port_ore'] ?? 0));
+            $updates['port_organics'] = max(0, (int)($_POST['port_organics'] ?? 0));
+            $updates['port_goods'] = max(0, (int)($_POST['port_goods'] ?? 0));
+            $updates['port_energy'] = max(0, (int)($_POST['port_energy'] ?? 0));
+            $updates['port_colonists'] = max(0, (int)($_POST['port_colonists'] ?? 0));
+        } else {
+            // Clear port inventory when port type is 'none'
+            $updates['port_ore'] = 0;
+            $updates['port_organics'] = 0;
+            $updates['port_goods'] = 0;
+            $updates['port_energy'] = 0;
+            $updates['port_colonists'] = 0;
+        }
+
+        try {
+            $this->universeModel->update($sectorId, $updates);
+            $this->session->set('message', "Sector $sectorId updated successfully");
+        } catch (\Exception $e) {
+            $this->session->set('error', 'Failed to update sector: ' . $e->getMessage());
+            error_log('Sector update error: ' . $e->getMessage());
+        }
 
         header('Location: /admin/universe/sector/' . $sectorId);
         exit;
