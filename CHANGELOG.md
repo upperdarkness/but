@@ -121,6 +121,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Recent Updates (December 2025)
 
+**December 4, 2025**
+- Added comprehensive admin sector management system
+- Admin can view and edit all sectors in the universe
+- Admin can add/remove navigation links between sectors
+- Admin can toggle starbase status for any sector
+- Admin can create and delete planets (unowned only)
+- Added planet management interface showing owner, base status, and colonists
+
 **December 3, 2025**
 - Fixed missing mine display on combat screen
 - Added starbase indicators to navigation links (main and scan views)
