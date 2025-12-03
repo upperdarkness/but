@@ -33,10 +33,14 @@ class Planet extends Model
 
     public function createPlanet(string $name, int $sectorId, int $owner = 0): int
     {
+        // Use NULL for unowned planets (owner = 0) to satisfy foreign key constraint
+        // The foreign key requires owner to reference an existing ship_id
+        $ownerValue = ($owner > 0) ? $owner : null;
+        
         return $this->create([
             'planet_name' => $name,
             'sector_id' => $sectorId,
-            'owner' => $owner,
+            'owner' => $ownerValue,
             'organics' => random_int(0, 10000),
             'ore' => random_int(0, 10000),
             'goods' => random_int(0, 10000),
