@@ -48,22 +48,26 @@ class Database
     {
         $stmt = $this->getConnection()->prepare($sql);
         
-        // Convert boolean values to proper PostgreSQL boolean format
-        $processedParams = [];
+        // Bind parameters with explicit type casting for PostgreSQL
         foreach ($params as $key => $value) {
+            // Parameter name should include colon for named parameters
+            $paramName = (strpos($key, ':') === 0) ? $key : ':' . $key;
+            
             if (is_bool($value)) {
-                // PostgreSQL boolean: use actual boolean, not string
-                $processedParams[$key] = $value;
+                // Explicitly bind boolean values
+                $stmt->bindValue($paramName, $value, PDO::PARAM_BOOL);
             } elseif ($value === 'true' || $value === '1') {
-                $processedParams[$key] = true;
-            } elseif ($value === 'false' || $value === '0' || $value === '') {
-                $processedParams[$key] = false;
+                $stmt->bindValue($paramName, true, PDO::PARAM_BOOL);
+            } elseif ($value === 'false' || $value === '0' || $value === '' || $value === null) {
+                $stmt->bindValue($paramName, false, PDO::PARAM_BOOL);
+            } elseif (is_int($value)) {
+                $stmt->bindValue($paramName, $value, PDO::PARAM_INT);
             } else {
-                $processedParams[$key] = $value;
+                $stmt->bindValue($paramName, $value);
             }
         }
         
-        $stmt->execute($processedParams);
+        $stmt->execute();
         return $stmt;
     }
 
