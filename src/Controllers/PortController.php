@@ -606,14 +606,18 @@ class PortController
 
         $device = $_POST['device'] ?? '';
         
-        if ($device !== 'emergency_warp') {
+        if (!in_array($device, ['emergency_warp', 'mine_deflector'])) {
             $this->session->set('error', 'Invalid device');
             header('Location: /port');
             exit;
         }
 
         $starbaseConfig = $this->config['starbase'] ?? [];
-        $price = $starbaseConfig['emergency_warp_price'] ?? 50000;
+        $price = match($device) {
+            'emergency_warp' => $starbaseConfig['emergency_warp_price'] ?? 50000,
+            'mine_deflector' => $starbaseConfig['mine_deflector_price'] ?? 25000,
+            default => 0
+        };
 
         if ($ship['credits'] < $price) {
             $this->session->set('error', "Not enough credits. Need " . number_format($price) . " credits.");
@@ -622,12 +626,27 @@ class PortController
         }
 
         // Purchase device (increment count)
-        $this->shipModel->update((int)$ship['ship_id'], [
+        $deviceColumn = match($device) {
+            'emergency_warp' => 'dev_emerwarp',
+            'mine_deflector' => 'dev_minedeflector',
+            default => null
+        };
+        
+        if (!$deviceColumn) {
+            $this->session->set('error', 'Invalid device');
+            header('Location: /port');
+            exit;
+        }
+        
+        $updates = [
             'credits' => $ship['credits'] - $price,
-            'dev_emerwarp' => ($ship['dev_emerwarp'] ?? 0) + 1
-        ]);
+            $deviceColumn => ($ship[$deviceColumn] ?? 0) + 1
+        ];
+        
+        $this->shipModel->update((int)$ship['ship_id'], $updates);
 
-        $this->session->set('message', "Purchased Emergency Warp Drive for " . number_format($price) . " credits");
+        $deviceName = $device === 'emergency_warp' ? 'Emergency Warp Drive' : 'Mine Deflector';
+        $this->session->set('message', "Purchased $deviceName for " . number_format($price) . " credits");
         header('Location: /port');
         exit;
     }

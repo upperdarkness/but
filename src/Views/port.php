@@ -215,6 +215,24 @@ ob_start();
                 </button>
             </form>
         </div>
+        
+        <div style="background: rgba(22, 33, 62, 0.6); padding: 15px; border-radius: 8px; margin-top: 15px;">
+            <strong>Mine Deflector</strong>
+            <div style="margin: 10px 0;">
+                <div>Your Stock: <?= number_format($ship['dev_minedeflector'] ?? 0) ?></div>
+                <div style="color: #9b59b6;">Price: <?= number_format($config['starbase']['mine_deflector_price'] ?? 25000) ?> cr</div>
+                <div style="font-size: 12px; color: #95a5a6; margin-top: 5px;">
+                    Automatically activates when hitting mines, preventing damage. Single-use device. Only works for ships with hull size 8+.
+                </div>
+            </div>
+            <form action="/port/purchase-device" method="post" style="margin-top: 10px;">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($session->getCsrfToken()) ?>">
+                <input type="hidden" name="device" value="mine_deflector">
+                <button type="submit" class="btn" style="background: rgba(155, 89, 182, 0.3); border-color: #9b59b6;">
+                    Purchase Mine Deflector
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 <?php endif; ?>

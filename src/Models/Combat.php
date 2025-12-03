@@ -257,7 +257,7 @@ class Combat
     /**
      * Check for sector mines
      */
-    public function checkMines(int $shipId, int $sectorId, int $hullSize): array
+    public function checkMines(int $shipId, int $sectorId, int $hullSize, int $mineDeflectors = 0): array
     {
         $result = [
             'hit' => false,
@@ -265,6 +265,7 @@ class Combat
             'mines_destroyed' => 0,
             'ship_destroyed' => false,
             'message' => '',
+            'deflector_used' => false,
         ];
 
         // Starbase sectors are protected - no mines can attack
@@ -292,6 +293,22 @@ class Combat
         $hitChance = min(80, $totalMines * 20);
 
         if (random_int(1, 100) > $hitChance) {
+            return $result;
+        }
+
+        // Check if mine deflector can prevent the hit
+        if ($mineDeflectors > 0) {
+            // Mine deflector prevents the hit completely
+            $result['hit'] = false;
+            $result['deflector_used'] = true;
+            $result['message'] = "Mine deflector activated! You avoided $totalMines mine(s).";
+            
+            // Consume one deflector
+            $this->db->execute(
+                'UPDATE ships SET dev_minedeflector = dev_minedeflector - 1 WHERE ship_id = :id',
+                ['id' => $shipId]
+            );
+            
             return $result;
         }
 

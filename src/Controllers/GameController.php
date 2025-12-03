@@ -120,8 +120,12 @@ class GameController
         $this->logMovement((int)$ship['ship_id'], $destinationSector);
 
         // Check for mines in destination sector
-        $mineResult = $this->combatModel->checkMines((int)$ship['ship_id'], $destinationSector, (int)$ship['hull']);
-        if ($mineResult['hit']) {
+        $mineDeflectors = (int)($ship['dev_minedeflector'] ?? 0);
+        $mineResult = $this->combatModel->checkMines((int)$ship['ship_id'], $destinationSector, (int)$ship['hull'], $mineDeflectors);
+        
+        if ($mineResult['deflector_used']) {
+            $this->session->set('message', $mineResult['message']);
+        } elseif ($mineResult['hit']) {
             $this->session->set('error', $mineResult['message']);
 
             // Apply mine damage
