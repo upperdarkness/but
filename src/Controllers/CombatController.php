@@ -71,18 +71,27 @@ class CombatController
             'ship_id' => $ship['ship_id']
         ]);
 
-        // Get player's own deployed fighters in this sector (for recall)
-        $myFighters = $this->shipModel->getDb()->fetchAll(
+        // Get player's own deployed defenses in this sector (for recall)
+        $myDefenses = $this->shipModel->getDb()->fetchAll(
             "SELECT * FROM sector_defence 
              WHERE sector_id = :sector 
-             AND ship_id = :ship_id 
-             AND defence_type = 'F'",
+             AND ship_id = :ship_id",
             ['sector' => $ship['sector'], 'ship_id' => $ship['ship_id']]
         );
         
+        $myFighters = [];
+        $myMines = [];
         $totalMyFighters = 0;
-        foreach ($myFighters as $fighter) {
-            $totalMyFighters += $fighter['quantity'];
+        $totalMyMines = 0;
+        
+        foreach ($myDefenses as $defense) {
+            if ($defense['defence_type'] === 'F') {
+                $myFighters[] = $defense;
+                $totalMyFighters += $defense['quantity'];
+            } elseif ($defense['defence_type'] === 'M') {
+                $myMines[] = $defense;
+                $totalMyMines += $defense['quantity'];
+            }
         }
 
         $session = $this->session;
@@ -93,7 +102,7 @@ class CombatController
         $isStarbaseSector = $this->universeModel->isStarbase((int)$ship['sector']);
         
         // Extract variables to make them available to the view
-        extract(compact('ship', 'sector', 'shipsInSector', 'planets', 'defenses', 'myFighters', 'totalMyFighters', 'isStarbaseSector', 'session', 'title', 'showHeader'));
+        extract(compact('ship', 'sector', 'shipsInSector', 'planets', 'defenses', 'myFighters', 'myMines', 'totalMyFighters', 'totalMyMines', 'isStarbaseSector', 'session', 'title', 'showHeader'));
 
         ob_start();
         include __DIR__ . '/../Views/combat.php';
