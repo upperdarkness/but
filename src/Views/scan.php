@@ -171,7 +171,12 @@ ob_start();
 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
     <?php foreach ($links as $link): ?>
     <div style="background: rgba(15, 76, 117, 0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(52, 152, 219, 0.3);">
-        <h4 style="color: #3498db; margin-bottom: 10px;">Sector <?= (int)$link['sector_id'] ?></h4>
+        <h4 style="color: #3498db; margin-bottom: 10px;">
+            Sector <?= (int)$link['sector_id'] ?>
+            <?php if ($link['is_starbase'] ?? false): ?>
+            <span style="color: #2ecc71; margin-left: 10px;">🛡️ Starbase</span>
+            <?php endif; ?>
+        </h4>
         <div style="font-size: 12px; color: #7f8c8d;">
             Port: <?= htmlspecialchars(ucfirst($link['port_type'])) ?>
         </div>
