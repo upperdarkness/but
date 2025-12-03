@@ -273,23 +273,48 @@ class AdminController
     }
 
     /**
-     * Universe management
+     * Universe management - List all sectors
      */
     public function universe(): void
     {
         $this->adminAuth->requireAuth();
 
-        // Get sector count
-        $sectorCount = $this->universeModel->getDb()->fetchOne('SELECT COUNT(*) as count FROM universe')['count'];
+        $search = trim($_GET['search'] ?? '');
+        
+        // Handle search
+        if (!empty($search)) {
+            $sectors = $this->universeModel->getDb()->fetchAll(
+                'SELECT u.*,
+                        (SELECT COUNT(*) FROM planets WHERE sector_id = u.sector_id) as planet_count
+                 FROM universe u
+                 WHERE u.sector_id::text LIKE :search OR u.sector_name ILIKE :search
+                 ORDER BY u.sector_id
+                 LIMIT 100',
+                ['search' => "%$search%"]
+            );
+            $sectorCount = count($sectors);
+            $totalPages = 1;
+            $page = 1;
+        } else {
+            // Get sector count
+            $sectorCount = $this->universeModel->getDb()->fetchOne('SELECT COUNT(*) as count FROM universe')['count'];
 
-        // Get sample sectors with planet counts
-        $sectors = $this->universeModel->getDb()->fetchAll(
-            'SELECT u.*,
-                    (SELECT COUNT(*) FROM planets WHERE sector_id = u.sector_id) as planet_count
-             FROM universe u
-             ORDER BY u.sector_id
-             LIMIT 20'
-        );
+            // Pagination
+            $page = max(1, (int)($_GET['page'] ?? 1));
+            $perPage = 50;
+            $offset = ($page - 1) * $perPage;
+            $totalPages = (int)ceil($sectorCount / $perPage);
+
+            // Get sectors with planet counts
+            $sectors = $this->universeModel->getDb()->fetchAll(
+                'SELECT u.*,
+                        (SELECT COUNT(*) FROM planets WHERE sector_id = u.sector_id) as planet_count
+                 FROM universe u
+                 ORDER BY u.sector_id
+                 LIMIT :limit OFFSET :offset',
+                ['limit' => $perPage, 'offset' => $offset]
+            );
+        }
 
         $session = $this->session;
         $config = $this->config;
@@ -299,6 +324,87 @@ class AdminController
         ob_start();
         include __DIR__ . '/../Views/admin_universe.php';
         echo ob_get_clean();
+    }
+
+    /**
+     * View/edit individual sector
+     */
+    public function viewSector(int $sectorId): void
+    {
+        $this->adminAuth->requireAuth();
+
+        $sector = $this->universeModel->getSector($sectorId);
+        if (!$sector) {
+            $this->session->set('error', 'Sector not found');
+            header('Location: /admin/universe');
+            exit;
+        }
+
+        // Get planet count
+        $planetCount = $this->planetModel->getDb()->fetchOne(
+            'SELECT COUNT(*) as count FROM planets WHERE sector_id = :id',
+            ['id' => $sectorId]
+        )['count'] ?? 0;
+
+        // Get linked sectors
+        $linkedSectors = $this->universeModel->getLinkedSectors($sectorId);
+
+        $session = $this->session;
+        $config = $this->config;
+        $title = 'Edit Sector - Admin - BlackNova Traders';
+        $showHeader = false;
+
+        ob_start();
+        include __DIR__ . '/../Views/admin_sector_edit.php';
+        echo ob_get_clean();
+    }
+
+    /**
+     * Update sector
+     */
+    public function updateSector(int $sectorId): void
+    {
+        $this->adminAuth->requireAuth();
+
+        $token = $_POST['csrf_token'] ?? '';
+        if (!$this->session->validateCsrfToken($token)) {
+            $this->session->set('error', 'Invalid request');
+            header('Location: /admin/universe');
+            exit;
+        }
+
+        $sector = $this->universeModel->getSector($sectorId);
+        if (!$sector) {
+            $this->session->set('error', 'Sector not found');
+            header('Location: /admin/universe');
+            exit;
+        }
+
+        // Validate port type
+        $portType = $_POST['port_type'] ?? 'none';
+        $validPortTypes = ['none', 'ore', 'organics', 'goods', 'energy', 'special'];
+        if (!in_array($portType, $validPortTypes)) {
+            $portType = 'none';
+        }
+
+        $updates = [
+            'sector_name' => trim($_POST['sector_name'] ?? ''),
+            'port_type' => $portType,
+            'port_ore' => max(0, (int)($_POST['port_ore'] ?? 0)),
+            'port_organics' => max(0, (int)($_POST['port_organics'] ?? 0)),
+            'port_goods' => max(0, (int)($_POST['port_goods'] ?? 0)),
+            'port_energy' => max(0, (int)($_POST['port_energy'] ?? 0)),
+            'port_colonists' => max(0, (int)($_POST['port_colonists'] ?? 0)),
+            'beacon' => trim($_POST['beacon'] ?? ''),
+            'is_starbase' => isset($_POST['is_starbase']) && $_POST['is_starbase'] === '1',
+            'zone_id' => max(1, (int)($_POST['zone_id'] ?? 1)),
+        ];
+
+        $this->universeModel->update($sectorId, $updates);
+        $this->session->set('message', "Sector $sectorId updated successfully");
+
+        header('Location: /admin/universe/sector/' . $sectorId);
+        exit;
     }
 
     /**

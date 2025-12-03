@@ -2,6 +2,9 @@
 $title = 'Universe Management - Admin - BlackNova Traders';
 $showHeader = false;
 ob_start();
+
+// Get search functionality
+$search = trim($_GET['search'] ?? '');
 ?>
 
 <style>
@@ -70,15 +73,29 @@ ob_start();
     </form>
 </div>
 
-<h3>Sample Sectors (First 20)</h3>
+<h3>All Sectors</h3>
+<div style="margin-bottom: 15px;">
+    <form method="get" action="/admin/universe" style="display: inline-block;">
+        <input type="text" name="search" placeholder="Search by Sector ID or Name..." 
+               value="<?= htmlspecialchars($search) ?>" 
+               style="padding: 8px; width: 300px;">
+        <button type="submit" class="btn">Search</button>
+        <?php if (!empty($search)): ?>
+        <a href="/admin/universe" class="btn" style="margin-left: 10px;">Clear</a>
+        <?php endif; ?>
+    </form>
+</div>
+
 <table>
     <thead>
         <tr>
             <th>Sector ID</th>
             <th>Name</th>
             <th>Port</th>
+            <th>Starbase</th>
             <th>Beacon</th>
             <th>Planets</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -87,15 +104,22 @@ ob_start();
             <td><?= (int)$sector['sector_id'] ?></td>
             <td><?= htmlspecialchars($sector['sector_name']) ?></td>
             <td>
-                <?php if ($sector['port_type']): ?>
-                    <span style="color: #2ecc71;">Port <?= htmlspecialchars($sector['port_type']) ?></span>
+                <?php if ($sector['port_type'] && $sector['port_type'] !== 'none'): ?>
+                    <span style="color: #2ecc71;"><?= htmlspecialchars(ucfirst($sector['port_type'])) ?></span>
                 <?php else: ?>
-                    <span style="color: #7f8c8d;">-</span>
+                    <span style="color: #7f8c8d;">None</span>
+                <?php endif; ?>
+            </td>
+            <td>
+                <?php if ($sector['is_starbase'] ?? false): ?>
+                    <span style="color: #2ecc71;">🛡️ Yes</span>
+                <?php else: ?>
+                    <span style="color: #7f8c8d;">No</span>
                 <?php endif; ?>
             </td>
             <td>
                 <?php if (!empty($sector['beacon'])): ?>
-                    <?= htmlspecialchars(substr($sector['beacon'], 0, 30)) ?>
+                    <?= htmlspecialchars(substr($sector['beacon'], 0, 30)) ?><?= strlen($sector['beacon']) > 30 ? '...' : '' ?>
                 <?php else: ?>
                     <span style="color: #7f8c8d;">-</span>
                 <?php endif; ?>
@@ -106,10 +130,31 @@ ob_start();
                 echo $planetCount > 0 ? "<span style='color: #3498db;'>$planetCount</span>" : '-';
                 ?>
             </td>
+            <td>
+                <a href="/admin/universe/sector/<?= (int)$sector['sector_id'] ?>" class="btn" style="padding: 5px 10px; font-size: 12px;">
+                    Edit
+                </a>
+            </td>
         </tr>
         <?php endforeach; ?>
     </tbody>
 </table>
+
+<?php if (empty($_GET['search']) && $totalPages > 1): ?>
+<div style="margin-top: 20px; text-align: center;">
+    <?php if ($page > 1): ?>
+    <a href="/admin/universe?page=<?= $page - 1 ?>" class="btn">Previous</a>
+    <?php endif; ?>
+    
+    <span style="margin: 0 20px; color: #e0e0e0;">
+        Page <?= $page ?> of <?= $totalPages ?>
+    </span>
+    
+    <?php if ($page < $totalPages): ?>
+    <a href="/admin/universe?page=<?= $page + 1 ?>" class="btn">Next</a>
+    <?php endif; ?>
+</div>
+<?php endif; ?>
 
 <div style="margin-top: 30px;">
     <a href="/admin" class="btn">Back to Dashboard</a>
