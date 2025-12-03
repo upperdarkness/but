@@ -128,6 +128,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Admin can toggle starbase status for any sector
 - Admin can create and delete planets (unowned only)
 - Added planet management interface showing owner, base status, and colonists
+- Fixed port type selector always showing 'none' in admin sector editor
+- Hide port inventory fields when sector has no port
+- Fixed update sector button not working (resolved nested forms issue)
+- Added port_colonists column to universe table for port colonist management
+- Fixed boolean handling for PostgreSQL in database queries (is_starbase checkbox)
+- Fixed planet owner foreign key constraint (made owner nullable, use NULL for unowned planets)
+- Fixed NULL value handling in database queries (proper PDO::PARAM_NULL binding)
 
 **December 3, 2025**
 - Fixed missing mine display on combat screen
