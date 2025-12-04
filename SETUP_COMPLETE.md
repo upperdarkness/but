@@ -28,12 +28,22 @@
 ## How to Start the Server
 
 ### Option 1: PHP Built-in Server (Development)
+
+**Localhost only (default - only accessible from this computer):**
 ```bash
 cd /Users/dave/but/public
 php -S localhost:8000 router.php
 ```
-
 Then visit: **http://localhost:8000**
+
+**All network interfaces (accessible from other devices on your network):**
+```bash
+cd /Users/dave/but/public
+php -S 0.0.0.0:8000 router.php
+```
+Then visit: **http://localhost:8000** (local) or **http://YOUR_IP:8000** (from other devices)
+
+**Note:** Using `0.0.0.0` makes the server accessible from other devices on your network. Use `localhost` for local-only access (more secure).
 
 ### Option 2: Apache/Nginx (Production)
 Point your web server's document root to:
@@ -100,5 +110,9 @@ If you encounter issues:
 The PHP development server should be running on port 8000.
 If not, start it with:
 ```bash
+# Localhost only (default)
 cd /Users/dave/but/public && php -S localhost:8000 router.php
+
+# Or for network access (accessible from other devices)
+cd /Users/dave/but/public && php -S 0.0.0.0:8000 router.php
 ```
