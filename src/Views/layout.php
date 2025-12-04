@@ -181,6 +181,213 @@
             color: #7f8c8d;
             font-size: 12px;
         }
+
+        /* Mobile Responsive Styles */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+
+            header {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .nav {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .nav a, .btn {
+                padding: 12px 15px;
+                font-size: 16px;
+                text-align: center;
+                min-height: 44px; /* Minimum touch target size */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                white-space: nowrap;
+            }
+
+            th, td {
+                padding: 8px;
+                font-size: 13px;
+            }
+
+            .stat-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .stat-value {
+                font-size: 20px;
+            }
+
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            input[type="number"],
+            textarea,
+            select {
+                padding: 12px;
+                font-size: 16px; /* Prevents zoom on iOS */
+                min-height: 44px;
+            }
+
+            input[type="submit"],
+            button[type="submit"],
+            button.btn {
+                padding: 14px 20px;
+                font-size: 16px;
+                min-height: 44px;
+                width: 100%;
+                margin: 5px 0;
+            }
+
+            .alert {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            /* Prevent text selection on buttons for better touch experience */
+            .nav a, .btn, button {
+                -webkit-tap-highlight-color: rgba(52, 152, 219, 0.3);
+                user-select: none;
+                -webkit-user-select: none;
+            }
+
+            /* Stack form elements vertically on mobile */
+            form > div {
+                margin-bottom: 15px;
+            }
+
+            /* Make sure flex containers stack on mobile */
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .admin-header .btn {
+                width: auto;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+
+            header {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            .content {
+                padding: 10px;
+            }
+
+            th, td {
+                padding: 6px;
+                font-size: 12px;
+            }
+
+            .stat-value {
+                font-size: 18px;
+            }
+        }
+
+        /* Touch-friendly improvements for all devices */
+        @media (hover: none) and (pointer: coarse) {
+            /* Mobile device with touch */
+            .nav a:hover, .btn:hover {
+                background: rgba(52, 152, 219, 0.2);
+                box-shadow: none;
+            }
+
+            .nav a:active, .btn:active {
+                background: rgba(52, 152, 219, 0.4);
+                transform: scale(0.98);
+            }
+
+            input[type="submit"]:hover,
+            button[type="submit"]:hover {
+                background: rgba(52, 152, 219, 0.3);
+                box-shadow: none;
+            }
+
+            input[type="submit"]:active,
+            button[type="submit"]:active {
+                background: rgba(52, 152, 219, 0.5);
+                transform: scale(0.98);
+            }
+        }
+
+        /* Improve form layouts on mobile */
+        @media screen and (max-width: 768px) {
+            form {
+                width: 100%;
+            }
+
+            form > div {
+                margin-bottom: 15px;
+            }
+
+            label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: 500;
+            }
+
+            /* Stack grid layouts on mobile */
+            div[style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* Make navigation link grids stack */
+            div[style*="repeat(auto-fill"] {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        /* Table wrapper for horizontal scrolling on mobile */
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 20px 0;
+        }
+
+        @media screen and (max-width: 768px) {
+            .table-wrapper {
+                margin: 15px -15px;
+                padding: 0 15px;
+            }
+
+            table {
+                min-width: 600px; /* Ensure table doesn't shrink too much */
+            }
+        }
     </style>
 </head>
 <body>
