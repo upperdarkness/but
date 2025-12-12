@@ -11,6 +11,8 @@ use BNT\Core\Session;
 use BNT\Core\AdminAuth;
 use BNT\Core\Scheduler;
 use BNT\Core\SchedulerTasks;
+use BNT\Core\ApiAuth;
+use BNT\Core\ApiMiddleware;
 use BNT\Models\Ship;
 use BNT\Models\Universe;
 use BNT\Models\Planet;
@@ -38,6 +40,8 @@ use BNT\Controllers\IBankController;
 use BNT\Controllers\AttackLogController;
 use BNT\Controllers\SkillController;
 use BNT\Controllers\AdminController;
+use BNT\Controllers\ApiAuthController;
+use BNT\Controllers\ApiGameController;
 
 // Load configuration
 $config = require __DIR__ . '/../config/config.php';
@@ -97,6 +101,14 @@ $ibankController = new IBankController($shipModel, $ibankModel, $session, $confi
 $attackLogController = new AttackLogController($shipModel, $attackLogModel, $session, $config);
 $skillController = new SkillController($shipModel, $skillModel, $session, $config);
 $adminController = new AdminController($shipModel, $universeModel, $planetModel, $teamModel, $session, $adminAuth, $config);
+
+// Initialize API components
+$apiAuth = new ApiAuth($db, $shipModel);
+$apiMiddleware = new ApiMiddleware($apiAuth);
+
+// Initialize API controllers
+$apiAuthController = new ApiAuthController($shipModel, $apiAuth, $session, $config);
+$apiGameController = new ApiGameController($shipModel, $universeModel, $planetModel, $combatModel, $apiAuth, $apiMiddleware, $config);
 
 // Define routes
 $router->get('/', fn() => $authController->showLogin());
@@ -199,6 +211,28 @@ $router->post('/admin/universe/regenerate', fn() => $adminController->regenerate
 $router->get('/admin/settings', fn() => $adminController->settings());
 $router->get('/admin/logs', fn() => $adminController->logs());
 $router->get('/admin/statistics', fn() => $adminController->statistics());
+
+// Add CORS middleware for API routes
+$router->addMiddleware(function() use ($apiMiddleware) {
+    if (strpos($_SERVER['REQUEST_URI'] ?? '', '/api/') === 0) {
+        $apiMiddleware->handleCors();
+    }
+});
+
+// API Routes - Authentication
+$router->post('/api/v1/auth/login', fn() => $apiAuthController->login());
+$router->post('/api/v1/auth/register', fn() => $apiAuthController->register());
+$router->post('/api/v1/auth/logout', fn() => $apiAuthController->logout());
+$router->get('/api/v1/auth/me', fn() => $apiAuthController->me());
+
+// API Routes - Game
+$router->get('/api/v1/game/main', fn() => $apiGameController->main());
+$router->post('/api/v1/game/move/:sector', fn($sector) => $apiGameController->move((int)$sector));
+$router->get('/api/v1/game/scan', fn() => $apiGameController->scan());
+$router->get('/api/v1/game/status', fn() => $apiGameController->status());
+$router->get('/api/v1/game/planet/:id', fn($id) => $apiGameController->planet((int)$id));
+$router->post('/api/v1/game/land/:id', fn($id) => $apiGameController->landOnPlanet((int)$id));
+$router->post('/api/v1/game/leave', fn() => $apiGameController->leavePlanet());
 
 // Dispatch request
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
